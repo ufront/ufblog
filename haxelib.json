@@ -1,0 +1,16 @@
+{
+  "name": "ufblog",
+  "license": "MIT",
+  "classPath": "src",
+  "tags": ["ufront","web","blog","cms"],
+  "description": "A blog engine, built with Ufront, that you can embed in your website / app.",
+  "contributors": ["jason"],
+  "releasenote": "First release",
+  "version": "0.0.1-alpha",
+  "url": "https://github.com/ufront/ufblog",
+  "dependencies": {
+    "ufront-mvc": "",
+    "ufront-orm": "",
+    "ufront-easyauth": ""
+  }
+}
