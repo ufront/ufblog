@@ -63,6 +63,7 @@ class BlogPostController extends Controller {
 		?publishDate:Date,
 		?authorID:DatabaseID<BlogMember>,
 		content:String,
+		introduction:String,
 		?tags:Array<String>,
 		publish:Bool
 	} ):FutureActionOutcome {
@@ -70,6 +71,7 @@ class BlogPostController extends Controller {
 			id: args.id,
 			authorID: args.authorID,
 			content: args.content,
+			introduction: args.introduction,
 			publishDate:
 				if ( args.publish==false ) null
 				else if ( args.publishDate!=null ) args.publishDate
