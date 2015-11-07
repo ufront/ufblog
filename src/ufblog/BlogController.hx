@@ -154,7 +154,7 @@ class AccountController extends Controller {
 			title: "Login",
 			username: existingUser,
 			msg: msg,
-		}, "login.html");
+		}, "login");
 	}
 
 	@:route(POST,"/login")
@@ -178,15 +178,15 @@ class AccountController extends Controller {
 			name: args.name,
 		});
 		if ( member.validate()==false ) {
-			var result = new PartialViewResult( args, "signupForm.html" ).setVar( "error", "Validation Error: "+member.validationErrors.toString() );
+			var result = new PartialViewResult( args, "signupForm" ).setVar( "error", "Validation Error: "+member.validationErrors.toString() );
 			return Future.sync( Success(result) );
 		}
 		else if ( args.password1!=args.password2 ) {
-			var result = new PartialViewResult( args, "signupForm.html" ).setVar( "error", "Passwords did not match" );
+			var result = new PartialViewResult( args, "signupForm" ).setVar( "error", "Passwords did not match" );
 			return Future.sync( Success(result) );
 		}
 		else return blogMemberApi.createUser( member, args.username, args.password1 ) >> function(member:BlogMember):ViewResult {
-			return new PartialViewResult( { member:member }, "signupSuccess.html" );
+			return new PartialViewResult( { member:member }, "signupSuccess" );
 		}
 	}
 }
@@ -199,7 +199,7 @@ class BlogUtil {
 			posts: posts,
 			canPostNew: true,//auth.hasPermission( BlogPermissions.WritePost ),
 			canViewDrafts: true,//auth.hasPermission( BlogPermissions. ),
-		}, "list.html");
+		}, "list");
 	}
 
 	public static function showPost( post:BlogPost ):ActionResult {
@@ -207,7 +207,7 @@ class BlogUtil {
 			title: post.title,
 			description: post.introduction,
 			post: post
-		}, "post.html" );
+		}, "post" );
 	}
 
 	public static function showForm( post:BlogPost ):ActionResult {
@@ -216,7 +216,7 @@ class BlogUtil {
 			title: 'Editing $title',
 			description: "",
 			post: post
-		}, "postForm.html" ).addClientAction( SetupEditForm );
+		}, "postForm" ).addClientAction( SetupEditForm );
 	}
 
 	public static function getLimit( page:Int ):PostLimit {
