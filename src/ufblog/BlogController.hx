@@ -31,13 +31,43 @@ class BlogController extends Controller {
 	@:route("/page/$page/")
 	public function allPosts( page:Int ) {
 		return blogApi.getAllPosts( BlogUtil.getLimit(page) ) >> function(posts:Array<BlogPost>) {
-			return BlogUtil.showPostList( 'Ufront Blog', 'Ufront Blog - Page $page.', posts, context.auth );
+			return BlogUtil.showPostList( 'Haxe Blog', 'Haxe Blog - Page $page.', posts, context.auth );
+		};
+	}
+
+	// Posts by author
+
+	@:route("/tag/$tagName")
+	public function tagIndex( tagName:String ) {
+		return tag( tagName, 1 );
+	}
+
+	@:route("/tag/$tagName/page/$page/")
+	public function tag( tagName:String, page:Int ) {
+		return blogApi.getTag( tagName, BlogUtil.getLimit(page) ) >> function(pair:Pair<BlogTag,Array<BlogPost>>) {
+			var tag = pair.a;
+			var posts = pair.b;
+			return BlogUtil.showPostList( 'Haxe Blog - ${tag.title} - Page $page', tag.description, posts, context.auth );
+		};
+	}
+
+	// Posts by tag
+
+	@:route("/author/$tagName")
+	public function authorIndex( tagName:String ) {
+		return author( tagName, 1 );
+	}
+
+	@:route("/author/$authorName/page/$page/")
+	public function author( authorName:String, page:Int ) {
+		return blogApi.getMember( authorName, BlogUtil.getLimit(page) ) >> function(pair:Pair<BlogMember,Array<BlogPost>>) {
+			var member = pair.a;
+			var posts = pair.b;
+			return BlogUtil.showPostList( 'Haxe Blog - ${member.name} - Page $page', member.name, posts, context.auth );
 		};
 	}
 
 	@:route("/accounts/*") public var accountController:AccountController;
-	@:route("/tag/*") public var tagController:TagController;
-	@:route("/author/*") public var authorController:AuthorController;
 	@:route("/*") public var blogPostController:BlogPostController;
 }
 
@@ -106,48 +136,6 @@ class BlogPostController extends Controller {
 	public function viewPost( postSlug:String ) {
 		return blogApi.getPostBySlug( postSlug ) >> BlogUtil.showPost;
 	}
-}
-
-@viewFolder("blog")
-class TagController extends Controller {
-
-	@inject public var blogApi:BlogApiAsync;
-
-	@:route("/$tagName")
-	public function tagIndex( tagName:String ) {
-		return tag( tagName, 1 );
-	}
-
-	@:route("/$tagName/page/$page/")
-	public function tag( tagName:String, page:Int ) {
-		return blogApi.getTag( tagName, BlogUtil.getLimit(page) ) >> function(pair:Pair<BlogTag,Array<BlogPost>>) {
-			var tag = pair.a;
-			var posts = pair.b;
-			return BlogUtil.showPostList( 'Ufront Blog - ${tag.title} - Page $page', tag.description, posts, context.auth );
-		};
-	}
-
-}
-
-@viewFolder("blog")
-class AuthorController extends Controller {
-
-	@inject public var blogApi:BlogApiAsync;
-
-	@:route("/$tagName")
-	public function tagIndex( tagName:String ) {
-		return tag( tagName, 1 );
-	}
-
-	@:route("/$authorName/page/$page/")
-	public function tag( authorName:String, page:Int ) {
-		return blogApi.getMember( authorName, BlogUtil.getLimit(page) ) >> function(pair:Pair<BlogMember,Array<BlogPost>>) {
-			var member = pair.a;
-			var posts = pair.b;
-			return BlogUtil.showPostList( 'Ufront Blog - ${member.name} - Page $page', member.name, posts, context.auth );
-		};
-	}
-
 }
 
 @viewFolder("blog")
