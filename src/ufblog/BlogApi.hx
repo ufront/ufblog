@@ -1,10 +1,9 @@
 package ufblog;
 
 import ufblog.BlogModels;
-import ufront.MVC;
 import ufront.db.DatabaseID;
-import tink.CoreApi;
-import ufront.auth.model.User;
+import ufront.MVC;
+import ufront.EasyAuth;
 using CleverSort;
 using tink.CoreApi;
 using Lambda;
@@ -154,6 +153,11 @@ class BlogMemberApi extends UFApi {
 
 class BlogApiAsync extends UFAsyncApi<BlogApi> {}
 class BlogMemberApiAsync extends UFAsyncApi<BlogMemberApi> {}
+
+class BlogRemotingApiContext extends UFApiContext {
+	public var blogApi:BlogApi;
+	public var easyAuthApi:ufront.auth.api.EasyAuthApi;
+}
 
 /**
 If limiting the number of posts, start at `pos` and get `length` posts.
