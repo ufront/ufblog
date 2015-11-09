@@ -112,9 +112,14 @@ class BlogApi extends UFApi {
 	}
 
 	static function includeMemberInSerialization( post:BlogPost ):BlogPost {
+		function includeField( obj:ufront.db.Object, field:String ) {
+			if ( obj.hxSerializationFields.indexOf(field)==-1 )
+				obj.hxSerializationFields.push( field );
+		}
 		if ( post!=null ) {
-			post.hxSerializationFields.push( "author" );
-			post.author.hxSerializationFields.push( "user" );
+			includeField( post, "author" );
+			includeField( post, "tags" );
+			includeField( post.author, "user" );
 			post.author.user.hxSerializationFields = ["id","username"];
 		}
 		return post;
