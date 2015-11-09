@@ -7,6 +7,7 @@ enum BlogPermissions {
 	EditAnyPost;
 	ViewUserList;
 	ChangePermissions;
+	ManageTags;
 
 	CommentWithoutModeration;
 	ModerateComments;

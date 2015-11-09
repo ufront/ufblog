@@ -12,7 +12,7 @@ class BlogApi extends UFApi {
 
 	@inject public var memberApi:BlogMemberApi;
 
-	public function getAllPosts( limit:PostLimit ):Array<BlogPost> {
+	public function getPostList( limit:PostLimit ):Array<BlogPost> {
 		var list = BlogPost.manager.search(
 			$publishDate!=null && $publishDate<Date.now(),
 			{
@@ -22,6 +22,14 @@ class BlogApi extends UFApi {
 			false
 		);
 		return [for (p in list) includeMemberInSerialization(p)];
+	}
+
+	public function getAllPosts():Array<BlogPost> {
+		auth.requirePermission( BlogPermissions.ViewDraftPosts );
+		var list = BlogPost.manager.all();
+		var array = [for (p in list) includeMemberInSerialization(p)];
+		array.cleverSort(-_.modified.getTime());
+		return array;
 	}
 
 	public function getTag( tagName:String, limit:PostLimit ):PostListResultFor<BlogTag> {
