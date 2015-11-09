@@ -1,0 +1,7 @@
+# Sensitive data
+src/db.json
+
+# Generated files
+www/index.n
+www/js/app.js
+www/js/app.js.map

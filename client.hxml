@@ -1,0 +1,14 @@
+-lib ufront-client
+-lib ufblog
+-lib erazor
+-lib markdown
+-lib objectinit
+-lib detox
+-lib cleversort
+-cp src
+-main Client
+-debug
+
+# JS Output
+-D embed_js
+-js www/js/app.js
