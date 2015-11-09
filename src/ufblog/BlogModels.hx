@@ -33,13 +33,15 @@ class BlogPost extends Object {
 
 	/**
 	Set both `title` and `url` simultaneously.
-	The title will be lowercased, sanitised and hyphenated to generate a URL.
+	The title will have whitespace.
+	The URL will be generated from the title, by lower-casing, hyphenating and whitespace, and removing unsupported characters.
 	**/
 	public function setTitle( t:String ) {
-		this.title = StringTools.trim( t );
-		this.url = ~/(\s)/g.replace( this.title, "-" );
-		this.url = ~/([^a-zA-Z0-9\-])/g.replace( this.title.toLowerCase(), "-" );
-		return this.title;
+		title = StringTools.trim( t );
+		url = title.toLowerCase();
+		url = ~/(\s)/g.replace( url, "-" );
+		url = ~/([^a-zA-Z0-9\-])/g.replace( url, "-" );
+		return title;
 	}
 
 	/** Get either the introduction, or the post content, as markdown. **/
