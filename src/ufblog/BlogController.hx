@@ -31,7 +31,7 @@ class BlogController extends Controller {
 	@:route("/page/$page/")
 	public function allPosts( page:Int ) {
 		return blogApi.getPostList( BlogUtil.getLimit(page) ) >> function(posts:Array<BlogPost>) {
-			return BlogUtil.showPostList( 'Haxe Blog', 'Haxe Blog - Page $page.', posts, context );
+			return showPostList( 'Haxe Blog', 'Haxe Blog - Page $page.', posts );
 		};
 	}
 
@@ -47,7 +47,7 @@ class BlogController extends Controller {
 		return blogApi.getTag( tagName, BlogUtil.getLimit(page) ) >> function(pair:Pair<BlogTag,Array<BlogPost>>) {
 			var tag = pair.a;
 			var posts = pair.b;
-			return BlogUtil.showPostList( 'Haxe Blog - ${tag.title} - Page $page', tag.description, posts, context );
+			return showPostList( 'Haxe Blog - ${tag.title} - Page $page', tag.description, posts );
 		};
 	}
 
@@ -63,13 +63,21 @@ class BlogController extends Controller {
 		return blogApi.getMember( authorName, BlogUtil.getLimit(page) ) >> function(pair:Pair<BlogMember,Array<BlogPost>>) {
 			var member = pair.a;
 			var posts = pair.b;
-			return BlogUtil.showPostList( 'Haxe Blog - ${member.name} - Page $page', member.name, posts, context );
+			return showPostList( 'Haxe Blog - ${member.name} - Page $page', member.name, posts );
 		};
 	}
 
 	@:route("/accounts/*") public var accountController:AccountController;
 	@:route("/blog-admin/*") public var blogManagementController:BlogManagementController;
 	@:route("/*") public var blogPostController:BlogPostController;
+
+	function showPostList( title:String, description:String, posts:Array<BlogPost> ):ActionResult {
+		return new PartialViewResult({
+			title: title,
+			description: description,
+			posts: posts,
+		}, "list").setVars( BlogUtil.addPermissionValues(context) );
+	}
 }
 
 @viewFolder("blog")
