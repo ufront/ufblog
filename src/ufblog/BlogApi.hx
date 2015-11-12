@@ -70,14 +70,14 @@ class BlogApi extends UFApi {
 		var post =
 			if ( auth.hasPermission(BlogPermissions.ViewDraftPosts) ) BlogPost.manager.get( id );
 			else BlogPost.manager.select( $id==id && $publishDate!=null && $publishDate<Date.now() );
-		return outcomeOf( includeMemberInSerialization(post) );
+		return BlogUtil.outcomeOf( includeMemberInSerialization(post) );
 	}
 
 	public function getPostBySlug( slug:String ):Outcome<BlogPost,Error> {
 		var post =
 			if ( auth.hasPermission(BlogPermissions.ViewDraftPosts) ) BlogPost.manager.select( $url==slug );
 			else BlogPost.manager.select( $url==slug && $publishDate!=null && $publishDate<Date.now() );
-		return outcomeOf( includeMemberInSerialization(post) );
+		return BlogUtil.outcomeOf( includeMemberInSerialization(post) );
 	}
 
 	public function updatePost( post:BlogPost, tagNames:Array<String> ):Outcome<BlogPost,Error> {
@@ -112,11 +112,6 @@ class BlogApi extends UFApi {
 			}
 			catch (e:Dynamic) return Failure( HttpError.wrap(e, "Failed to delete blog post") );
 		});
-	}
-
-	/** TODO: Consider adding this as a helper in ufront.core or HttpError somewhere. **/
-	static function outcomeOf<T>( val:Null<T>, ?pos ):Outcome<T,Error> {
-		return ( val!=null ) ? Success( val ) : Failure( HttpError.pageNotFound(pos) );
 	}
 
 	static function includeMemberInSerialization( post:BlogPost ):BlogPost {
