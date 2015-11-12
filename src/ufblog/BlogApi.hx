@@ -171,11 +171,3 @@ class BlogRemotingApiContext extends UFApiContext {
 	public var blogApi:BlogApi;
 	public var easyAuthApi:ufront.auth.api.EasyAuthApi;
 }
-
-/**
-If limiting the number of posts, start at `pos` and get `length` posts.
-**/
-typedef PostLimit = {
-	var pos:Int;
-	var length:Int;
-}

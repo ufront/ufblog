@@ -118,3 +118,11 @@ class BlogComment extends Object {
 }
 
 typedef PostListResultFor<T> = Outcome<Pair<T,Array<BlogPost>>,Error>;
+
+/**
+If limiting the number of posts, start at `pos` and get `length` posts.
+**/
+typedef PostLimit = {
+	var pos:Int;
+	var length:Int;
+}
