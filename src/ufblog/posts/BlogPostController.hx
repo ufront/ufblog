@@ -1,0 +1,103 @@
+package ufblog.posts;
+
+import ufront.MVC;
+import ufblog.posts.BlogPostApi;
+import ufblog.tags.BlogTag;
+import ufblog.tags.BlogTagApi;
+import tink.CoreApi;
+using ufront.web.result.AddClientActionResult;
+using ObjectInit;
+
+@viewFolder("blog")
+class BlogPostController extends Controller {
+
+	@inject public var blogApi:BlogPostApiAsync;
+	@inject public var blogTagApi:BlogTagApiAsync;
+
+	@:route("/new/")
+	public function newPost():FutureActionOutcome {
+		return showForm( new BlogPost() );
+	}
+
+	@:route(GET,"/$postSlug/edit/")
+	public function editPost( postSlug:String ):FutureActionOutcome {
+		var post:Surprise<BlogPost,Error> =  blogApi.getPostBySlug( postSlug );
+		// `getPostBySlug` returns a `Surprise<BlogPost,TypedError<...>>`
+		// Because TypedError is invariant with Error when used in a Surprise, the overload does transformation 3.v not 3.i (from the docs)
+		// Then we get `Surprise<Outcome<ActionResult,TypedError>,Error>` instead of `Surprise<ActionResult,Error>`.
+		// TODO: See if we can improve this. Either in tink or in ufront.
+		return post >> showForm;
+	}
+
+	@:route(POST,"/save/")
+	public function submitEditPost( args:{
+		?id:Null<Int>,
+		title:String,
+		?publishDate:Date,
+		?authorID:Int,
+		content:String,
+		introduction:String,
+		?tags:Array<String>,
+		publish:Bool
+	} ):FutureActionOutcome {
+		var post = new BlogPost().init({
+			id: args.id,
+			authorID: args.authorID,
+			content: args.content,
+			introduction: args.introduction,
+			publishDate:
+				if ( args.publish==false ) null
+				else if ( args.publishDate!=null ) args.publishDate
+				else Date.now(),
+			authorID: -1 // We need a non-null value for it to pass validation.
+		});
+		post.setTitle( args.title );
+		if ( post.validate() ) {
+			return blogApi.updatePost( post, args.tags ) >> showPost;
+		}
+		else {
+			return showForm( post );
+		}
+	}
+
+	@:route(GET,"/$postSlug/delete/")
+	public function deletePost( postSlug:String ) {
+		return blogApi.deletePostBySlug( postSlug ) >> function(post:BlogPost) {
+			ufLog( 'Deleted BlogPost#${post.id}: ${post.title} [${post.url}]');
+			return new RedirectResult( this.baseUri );
+		};
+	}
+
+	@:route("/p/$postID")
+	public function permalink( postID:Int ) {
+		return blogApi.getPostByID( postID ) >> function(post:BlogPost) {
+			return new RedirectResult( '/${post.url}/' );
+		}
+	}
+
+	@:route("/$postSlug")
+	public function viewPost( postSlug:String ) {
+		return blogApi.getPostBySlug( postSlug ) >> showPost;
+	}
+
+	function showPost( post:BlogPost ):ActionResult {
+		return new PartialViewResult({
+			title: post.title,
+			description: post.introduction,
+			post: post
+		}, "post" );
+	}
+
+	function showForm( post:BlogPost ):FutureActionOutcome {
+		return blogTagApi.getAllTags() >> function( tags:Array<BlogTag> ):ActionResult {
+			trace( tags );
+			var title = (post.title=="") ? "New Post" : '"${post.title}"';
+			return new PartialViewResult({
+				title: 'Editing $title',
+				description: "",
+				post: post,
+				tags: tags,
+			}, "postForm" ).addClientAction( SetupEditFormAction );
+		}
+	}
+}

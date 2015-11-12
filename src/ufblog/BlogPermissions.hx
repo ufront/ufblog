@@ -8,7 +8,6 @@ enum BlogPermissions {
 	ViewUserList;
 	ChangePermissions;
 	ManageTags;
-
 	CommentWithoutModeration;
 	ModerateComments;
 }

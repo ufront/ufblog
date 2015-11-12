@@ -1,4 +1,4 @@
-package ufblog.actions;
+package ufblog.posts;
 
 import ufront.MVC;
 import tink.CoreApi;
@@ -7,7 +7,7 @@ import tink.CoreApi;
 	using Detox;
 #end
 
-class SetupEditForm implements UFClientAction<Noise> {
+class SetupEditFormAction implements UFClientAction<Noise> {
 	public function new() {}
 
 	public function execute( httpContext:HttpContext, ?data:Noise ):Void {

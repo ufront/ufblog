@@ -1,14 +1,13 @@
-package ufblog;
+package ufblog.posts;
 
-import ufblog.BlogModels;
-import ufront.db.DatabaseID;
+import ufblog.tags.*;
+import ufblog.members.*;
 import ufront.MVC;
 import ufront.EasyAuth;
-using CleverSort;
 using tink.CoreApi;
-using Lambda;
+using CleverSort;
 
-class BlogApi extends UFApi {
+class BlogPostApi extends UFApi {
 
 	@inject public var memberApi:BlogMemberApi;
 
@@ -128,68 +127,15 @@ class BlogApi extends UFApi {
 		return post;
 	}
 }
+class BlogPostApiAsync extends UFAsyncApi<BlogPostApi> {}
 
-class BlogMemberApi extends UFApi {
-	#if server
-		// TODO: make sure EasyAuth can at least exist on the client so I don't need this conditional compilation.
-		@inject public var easyAuth:ufront.auth.EasyAuth;
-	#end
+/**
+A shortcut typedef, for describing an `Outcome` that contains an object and it's related `BlogPost` array, or an error object.
 
-	public function createUser( member:BlogMember, username:String, password:String ):Outcome<BlogMember,Error> {
-		try {
-			var u = new User( username, password );
-			u.save();
-			member.user = u;
-			member.save();
-			return Success( member );
-		}
-		catch ( e:Dynamic ) return Failure( HttpError.wrap(e, "Failed to create new blog member") );
-	}
+For example:
 
-	public function getCurrentMember():Outcome<BlogMember,Error> {
-		if ( easyAuth.isLoggedIn() ) {
-			var u = easyAuth.getCurrentUser();
-			var member = BlogMember.manager.select( $userID==u.id );
-			return
-				if ( member==null) Failure( new Error(404,'No BlogMember matching current user $u') )
-				else Success( member );
-		}
-		else return Failure( HttpError.authError(ANotLoggedIn) );
-
-	}
-}
-
-class BlogTagApi extends UFApi {
-	public function getAllTags():Array<BlogTag> {
-		var tags = BlogTag.manager.all().array();
-		tags.cleverSort( _.name );
-		return tags;
-	}
-
-	public function getTagByName( name:String ):Outcome<BlogTag,Error> {
-		var tag = BlogTag.manager.select( $name==name );
-		return BlogUtil.outcomeOf( tag );
-	}
-
-	public function saveTag( tag:BlogTag ):Void {
-		tag.save();
-	}
-
-	public function deleteTag( tagName:String ):Void {
-		var tag = getTagByName( tagName ).sure();
-		tag.posts.refreshList();
-		tag.posts.clear();
-		tag.delete();
-	}
-}
-
-class BlogApiAsync extends UFAsyncApi<BlogApi> {}
-class BlogMemberApiAsync extends UFAsyncApi<BlogMemberApi> {}
-class BlogTagApiAsync extends UFAsyncApi<BlogTagApi> {}
-
-class BlogRemotingApiContext extends UFApiContext {
-	public var blogApi:BlogApi;
-	public var blogMemberApi:BlogMemberApi;
-	public var blogTagApi:BlogTagApi;
-	public var easyAuthApi:ufront.auth.api.EasyAuthApi;
-}
+- `Success( Pair(tag, postsInTag) )`
+- `Success( Pair(author, postsByAuthor) )`
+- `Failure( 404 )`
+**/
+typedef PostListResultFor<T> = Outcome<Pair<T,Array<BlogPost>>,Error>;

@@ -2,8 +2,6 @@ package ufblog;
 
 import ufront.MVC;
 import ufblog.BlogPermissions;
-import ufblog.BlogModels;
-import ufblog.actions.*;
 import tink.CoreApi;
 
 class BlogUtil {
@@ -13,12 +11,6 @@ class BlogUtil {
 		canViewDrafts: context.auth.hasPermission( BlogPermissions.ViewDraftPosts ),
 		canViewUserList: context.auth.hasPermission( BlogPermissions.ViewUserList ),
 		canManageTags: context.auth.hasPermission( BlogPermissions.ViewUserList ),
-	}
-
-	public static function getLimit( page:Int ):PostLimit {
-		var postsPerPage = 20;
-		var start = (page-1) * 20;
-		return { pos:start, length: postsPerPage };
 	}
 
 	/** TODO: Consider adding this as a helper in ufront.core or HttpError somewhere. **/

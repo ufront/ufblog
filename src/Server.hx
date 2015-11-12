@@ -1,6 +1,6 @@
 import ufront.MVC;
-import ufblog.BlogController;
-import ufblog.BlogApi;
+import ufblog.BlogRoutes;
+import ufblog.BlogRemotingApiContext;
 import sys.db.*;
 
 class Server {
@@ -8,7 +8,7 @@ class Server {
 
 	static function main() {
 		ufApp = new UfrontApplication({
-			indexController: BlogController,
+			indexController: BlogRoutes,
 			remotingApi: BlogRemotingApiContext,
 			defaultLayout: "layout-haxe.tpl",
 			sessionImplementation: CacheSession,
