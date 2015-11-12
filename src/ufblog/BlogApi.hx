@@ -159,10 +159,37 @@ class BlogMemberApi extends UFApi {
 	}
 }
 
+class BlogTagApi extends UFApi {
+	public function getAllTags():Array<BlogTag> {
+		var tags = BlogTag.manager.all().array();
+		tags.cleverSort( _.name );
+		return tags;
+	}
+
+	public function getTagByName( name:String ):Outcome<BlogTag,Error> {
+		var tag = BlogTag.manager.select( $name==name );
+		return BlogUtil.outcomeOf( tag );
+	}
+
+	public function saveTag( tag:BlogTag ):Void {
+		tag.save();
+	}
+
+	public function deleteTag( tagName:String ):Void {
+		var tag = getTagByName( tagName ).sure();
+		tag.posts.refreshList();
+		tag.posts.clear();
+		tag.delete();
+	}
+}
+
 class BlogApiAsync extends UFAsyncApi<BlogApi> {}
 class BlogMemberApiAsync extends UFAsyncApi<BlogMemberApi> {}
+class BlogTagApiAsync extends UFAsyncApi<BlogTagApi> {}
 
 class BlogRemotingApiContext extends UFApiContext {
 	public var blogApi:BlogApi;
+	public var blogMemberApi:BlogMemberApi;
+	public var blogTagApi:BlogTagApi;
 	public var easyAuthApi:ufront.auth.api.EasyAuthApi;
 }
