@@ -178,12 +178,16 @@ class BlogPostController extends Controller {
 class BlogManagementController extends Controller {
 
 	@inject public var blogApi:BlogApiAsync;
+	@inject public var blogTagApi:BlogTagApiAsync;
 
 	@:route(GET,"/")
 	public function managePosts() {
 		return blogApi.getAllPosts() >> function(posts:Array<BlogPost>) {
-
-			return BlogUtil.showPostTable( 'Haxe Blog', 'Manage posts', posts, context );
+			return new PartialViewResult({
+				title: 'Haxe Blog',
+				description: 'Manage posts',
+				posts: posts,
+			}, "managePosts").setVars( BlogUtil.addPermissionValues(context) );
 		};
 	}
 
@@ -194,7 +198,51 @@ class BlogManagementController extends Controller {
 
 	@:route(GET,"/tags/")
 	public function manageTags() {
-		return "Manage some tags";
+		return blogTagApi.getAllTags() >> function(tags:Array<BlogTag>) {
+			return new PartialViewResult({
+				title: "Blog Tags",
+				description: "Manage the tags used on your blog",
+				tags: tags,
+			}, "manageTags").setVars( BlogUtil.addPermissionValues(context) );
+		}
+	}
+
+	@:route(GET,"/tags/new/")
+	public function newTag() {
+		return showTagForm( new BlogTag().init(
+			name="new-tag",
+			title="New Tag",
+			description="This is your new tag"
+		) );
+	}
+
+	@:route(GET,"/tags/$name/")
+	public function editTag( name:String ) {
+		return blogTagApi.getTagByName( name ) >> function(tag:BlogTag) {
+			return showTagForm( tag );
+		}
+	}
+
+	@:route(GET,"/tags/$name/delete/")
+	public function deleteTag( name:String ) {
+		return blogTagApi.deleteTag( name ) >> function(n:Noise) {
+			return new RedirectResult( baseUri+"tags/" );
+		}
+	}
+
+	@:route(POST,"/tags/save/")
+	public function saveTag( args:{ ?id:Null<Int>, name:String, title:String, description:String } ) {
+		var tag = new BlogTag().init( id=args.id, name=args.name, title=args.title, description=args.description );
+		return blogTagApi.saveTag( tag ) >> function(n:Noise) {
+			return new RedirectResult( baseUri+"tags/" );
+		}
+	}
+
+	function showTagForm( tag:BlogTag ):ActionResult {
+		return new PartialViewResult({
+			title: 'Edit ${tag.title} tag [${tag.name}]',
+			tag: tag,
+		}, "editTag").setVars( BlogUtil.addPermissionValues(context) );
 	}
 }
 
