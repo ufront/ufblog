@@ -29,19 +29,6 @@ class BlogPost extends Object {
 	/** All the tags that apply to this post. **/
 	public var tags:ManyToMany<BlogPost,BlogTag>;
 
-	/**
-	Set both `title` and `url` simultaneously.
-	The title will have whitespace.
-	The URL will be generated from the title, by lower-casing, hyphenating and whitespace, and removing unsupported characters.
-	**/
-	public function setTitle( t:String ) {
-		title = StringTools.trim( t );
-		url = title.toLowerCase();
-		url = ~/(\s)/g.replace( url, "-" );
-		url = ~/([^a-zA-Z0-9\-])/g.replace( url, "-" );
-		return title;
-	}
-
 	/** Get either the introduction, or the post content, as markdown. **/
 	public function getIntroOrContent():String {
 		return ( introduction!=null && introduction.length>0 ) ? introduction : content;
@@ -55,5 +42,13 @@ class BlogPost extends Object {
 	/** Get either the introduction, or the post content, as HTML (rather than Markdown). **/
 	public function getIntroOrContentHTML():String {
 		return Markdown.markdownToHtml( getIntroOrContent() );
+	}
+
+	public static function urlFromTitle( title:String ):String {
+		var url = StringTools.trim( title );
+		url = url.toLowerCase();
+		url = ~/(\s)/g.replace( url, "-" );
+		url = ~/([^a-zA-Z0-9\-])/g.replace( url, "" );
+		return url;
 	}
 }

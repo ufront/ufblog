@@ -7,6 +7,7 @@ import ufblog.tags.BlogTagApi;
 import tink.CoreApi;
 using ufront.web.result.AddClientActionResult;
 using ObjectInit;
+using StringTools;
 
 @viewFolder("blog")
 class BlogPostController extends Controller {
@@ -33,6 +34,7 @@ class BlogPostController extends Controller {
 	public function submitEditPost( args:{
 		?id:Null<Int>,
 		title:String,
+		url:String,
 		?publishDate:Date,
 		?authorID:Int,
 		content:String,
@@ -44,6 +46,8 @@ class BlogPostController extends Controller {
 			id: args.id,
 			authorID: args.authorID,
 			content: args.content,
+			title: args.title.trim(),
+			url: args.url.trim(),
 			introduction: args.introduction,
 			publishDate:
 				if ( args.publish==false ) null
@@ -51,7 +55,6 @@ class BlogPostController extends Controller {
 				else Date.now(),
 			authorID: -1 // We need a non-null value for it to pass validation.
 		});
-		post.setTitle( args.title );
 		if ( post.validate() ) {
 			return blogApi.updatePost( post, args.tags ) >> showPost;
 		}
@@ -90,7 +93,6 @@ class BlogPostController extends Controller {
 
 	function showForm( post:BlogPost ):FutureActionOutcome {
 		return blogTagApi.getAllTags() >> function( tags:Array<BlogTag> ):ActionResult {
-			trace( tags );
 			var title = (post.title=="") ? "New Post" : '"${post.title}"';
 			return new PartialViewResult({
 				title: 'Editing $title',
