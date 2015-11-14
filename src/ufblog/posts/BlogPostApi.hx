@@ -20,13 +20,13 @@ class BlogPostApi extends UFApi {
 			},
 			false
 		);
-		return [for (p in list) includeMemberInSerialization(p)];
+		return [for (p in list) setSerialization(p)];
 	}
 
 	public function getAllPosts():Array<BlogPost> {
 		auth.requirePermission( BlogPermissions.ViewDraftPosts );
 		var list = BlogPost.manager.all();
-		var array = [for (p in list) includeMemberInSerialization(p)];
+		var array = [for (p in list) setSerialization(p)];
 		array.cleverSort(-_.modified.getTime());
 		return array;
 	}
@@ -39,7 +39,7 @@ class BlogPostApi extends UFApi {
 			var tagPosts = [for (p in tag.posts) if (p.publishDate!=null && p.publishDate.getTime()<now) p];
 			tagPosts.cleverSort( -_.publishDate.getTime() );
 			tagPosts = tagPosts.splice( limit.pos, limit.length );
-			tagPosts = tagPosts.map( includeMemberInSerialization );
+			tagPosts = tagPosts.map( setSerialization );
 			return Success( new Pair(tag,tagPosts) );
 		}
 		else return Failure( HttpError.pageNotFound() );
@@ -58,7 +58,7 @@ class BlogPostApi extends UFApi {
 					},
 					false
 				);
-				var posts = [for (p in postList) includeMemberInSerialization(p)];
+				var posts = [for (p in postList) setSerialization(p)];
 				return Success( new Pair(member,posts) );
 			}
 		}
@@ -69,14 +69,14 @@ class BlogPostApi extends UFApi {
 		var post =
 			if ( auth.hasPermission(BlogPermissions.ViewDraftPosts) ) BlogPost.manager.get( id );
 			else BlogPost.manager.select( $id==id && $publishDate!=null && $publishDate<Date.now() );
-		return BlogUtil.outcomeOf( includeMemberInSerialization(post) );
+		return BlogUtil.outcomeOf( setSerialization(post) );
 	}
 
 	public function getPostBySlug( slug:String ):Outcome<BlogPost,Error> {
 		var post =
 			if ( auth.hasPermission(BlogPermissions.ViewDraftPosts) ) BlogPost.manager.select( $url==slug );
 			else BlogPost.manager.select( $url==slug && $publishDate!=null && $publishDate<Date.now() );
-		return BlogUtil.outcomeOf( includeMemberInSerialization(post) );
+		return BlogUtil.outcomeOf( setSerialization(post) );
 	}
 
 	public function updatePost( post:BlogPost, tagNames:Array<String> ):Outcome<BlogPost,Error> {
@@ -95,7 +95,7 @@ class BlogPostApi extends UFApi {
 			post.save();
 			var tags = BlogTag.manager.search( $name in tagNames );
 			post.tags.setList( tags );
-			return Success( includeMemberInSerialization(post) );
+			return Success( setSerialization(post) );
 		}
 		catch (e:Dynamic) return Failure( HttpError.wrap(e, "Failed to save blog post"+e) );
 	}
@@ -107,13 +107,13 @@ class BlogPostApi extends UFApi {
 				if ( p.authorID!=currentMember.id )
 					auth.requirePermission( BlogPermissions.EditAnyPost );
 				p.delete();
-				return Success( includeMemberInSerialization(p) );
+				return Success( setSerialization(p) );
 			}
 			catch (e:Dynamic) return Failure( HttpError.wrap(e, "Failed to delete blog post") );
 		});
 	}
 
-	static function includeMemberInSerialization( post:BlogPost ):BlogPost {
+	static function setSerialization( post:BlogPost ):BlogPost {
 		function includeField( obj:ufront.db.Object, field:String ) {
 			if ( obj.hxSerializationFields.indexOf(field)==-1 )
 				obj.hxSerializationFields.push( field );
