@@ -56,7 +56,7 @@ class BlogPostController extends Controller {
 			authorID: -1 // We need a non-null value for it to pass validation.
 		});
 		if ( post.validate() ) {
-			return blogApi.updatePost( post, args.tags ) >> showPost;
+			return blogApi.updatePost( post, args.tags ) >> redirectToPost;
 		}
 		else {
 			return showForm( post );
@@ -73,9 +73,7 @@ class BlogPostController extends Controller {
 
 	@:route("/p/$postID")
 	public function permalink( postID:Int ) {
-		return blogApi.getPostByID( postID ) >> function(post:BlogPost) {
-			return new RedirectResult( '/${post.url}/' );
-		}
+		return blogApi.getPostByID( postID ) >> redirectToPost;
 	}
 
 	@:route("/$postSlug")
@@ -89,6 +87,10 @@ class BlogPostController extends Controller {
 			var path = context.contentDirectory+'blog-uploads/${post.id}/${filename}';
 			return new DirectFilePathResult( path );
 		};
+	}
+
+	function redirectToPost( post:BlogPost ):ActionResult {
+		return new RedirectResult( baseUri+post.url );
 	}
 
 	function showPost( post:BlogPost ):ActionResult {
