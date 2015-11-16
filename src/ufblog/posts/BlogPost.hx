@@ -30,20 +30,9 @@ class BlogPost extends Object {
 	/** All the tags that apply to this post. **/
 	public var tags:ManyToMany<BlogPost,BlogTag>;
 
-	/** Get either the introduction, or the post content, as markdown. **/
-	public function getIntroOrContent():String {
-		return ( introduction!=null && introduction.length>0 ) ? introduction : content;
-	}
-
 	/** Get the post content as HTML (rather than Markdown). **/
 	public function getContentHTML( postURL:String ):String {
 		var md = content.replace( '(~/', '($postURL/files/' );
-		return Markdown.markdownToHtml( md );
-	}
-
-	/** Get either the introduction, or the post content, as HTML (rather than Markdown). **/
-	public function getIntroOrContentHTML( postURL:String ):String {
-		var md = getIntroOrContent().replace( '(~/', '($postURL/files/' );
 		return Markdown.markdownToHtml( md );
 	}
 
