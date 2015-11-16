@@ -15,6 +15,9 @@ class BlogPost extends Object {
 	/** The title of the blog post. Short so we can tweet it. Use `setTitle()` to set both `url` and `title` simultaneously. **/
 	public var title:SString<120> = "";
 
+	/** The file name of the header image. It should be saved in the same folder as other attachments. **/
+	public var headerImage:Null<SString<255>> = null;
+
 	/** A short description / introduction to the post, as markdown.  If used this will appear in the post list, rather than the full post. **/
 	public var introduction:Null<SString<255>> = "";
 
@@ -34,6 +37,11 @@ class BlogPost extends Object {
 	public function getContentHTML( postURL:String ):String {
 		var md = content.replace( '(~/', '($postURL/files/' );
 		return Markdown.markdownToHtml( md );
+	}
+
+	/** Get the header image URL based on the postURL and the headerImage filename. **/
+	public function getHeaderURL( postURL:String ):String {
+		return '$postURL/files/${headerImage.urlEncode()}';
 	}
 
 	public static function urlFromTitle( title:String ):String {
