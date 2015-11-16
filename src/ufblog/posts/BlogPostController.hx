@@ -83,6 +83,14 @@ class BlogPostController extends Controller {
 		return blogApi.getPostBySlug( postSlug ) >> showPost;
 	}
 
+	@:route("/$postSlug/files/$filename")
+	public function attachments( postSlug:String, filename:String ) {
+		return blogApi.getPostBySlug( postSlug ) >> function (post:BlogPost) {
+			var path = context.contentDirectory+'blog-uploads/${post.id}/${filename}';
+			return new DirectFilePathResult( path );
+		};
+	}
+
 	function showPost( post:BlogPost ):ActionResult {
 		return new PartialViewResult({
 			title: post.title,

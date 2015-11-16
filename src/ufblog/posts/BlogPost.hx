@@ -4,6 +4,7 @@ import ufront.ORM;
 import ufblog.members.BlogMember;
 import ufblog.tags.BlogTag;
 import sys.db.Types;
+using StringTools;
 
 @:index(url,unique)
 class BlogPost extends Object {
@@ -35,13 +36,15 @@ class BlogPost extends Object {
 	}
 
 	/** Get the post content as HTML (rather than Markdown). **/
-	public function getContentHTML():String {
-		return Markdown.markdownToHtml( content );
+	public function getContentHTML( postURL:String ):String {
+		var md = content.replace( '(~/', '($postURL/files/' );
+		return Markdown.markdownToHtml( md );
 	}
 
 	/** Get either the introduction, or the post content, as HTML (rather than Markdown). **/
-	public function getIntroOrContentHTML():String {
-		return Markdown.markdownToHtml( getIntroOrContent() );
+	public function getIntroOrContentHTML( postURL:String ):String {
+		var md = getIntroOrContent().replace( '(~/', '($postURL/files/' );
+		return Markdown.markdownToHtml( md );
 	}
 
 	public static function urlFromTitle( title:String ):String {

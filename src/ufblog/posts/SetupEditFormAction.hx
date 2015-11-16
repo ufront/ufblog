@@ -4,17 +4,21 @@ import ufront.MVC;
 import tink.CoreApi;
 import ufblog.posts.BlogPost;
 import ufblog.posts.BlogPostApi;
+import ufblog.posts.AttachmentApi;
+import ufront.web.upload.BrowserFileUpload;
 #if client
-	import js.html.HtmlElement;
+	import js.html.*;
 	using Detox;
+	using StringTools;
 #end
 
-class SetupEditFormAction implements UFClientAction<Noise> {
+class SetupEditFormAction extends UFClientAction<Noise> {
 	public function new() {}
 
-	public function execute( httpContext:HttpContext, ?data:Noise ):Void {
+	override public function execute( httpContext:HttpContext, ?data:Noise ):Void {
 		updatePreviewOnKeypress();
 		updateUrlAndCheckItIsUnique( httpContext );
+		setupUploadHandler( httpContext );
 	}
 
 	function updatePreviewOnKeypress() {
@@ -22,12 +26,14 @@ class SetupEditFormAction implements UFClientAction<Noise> {
 		var editTextArea = "#content".find().first();
 		var introTextArea = "#introduction".find().first();
 		var previewBox = "#preview".find().first();
+		var postUrl = "#post-url".find().attr( "href" );
 
 		function updatePreview( ?e ) {
 			// Update the preview
 			var title = titleInput.val();
 			var intro = introTextArea.val();
-			var html = Markdown.markdownToHtml( editTextArea.val() );
+			var md = editTextArea.val().replace( '(~/', '(${postUrl}files/' );
+			var html = Markdown.markdownToHtml( md );
 			previewBox.setInnerHTML( '<h1>$title</h1><p class="lead">$intro</p>'+html );
 			// Resize the text box
 			var textarea:HtmlElement = cast editTextArea;
@@ -69,6 +75,44 @@ class SetupEditFormAction implements UFClientAction<Noise> {
 					urlControlGroup.removeClass( "warning" );
 					urlWarning.setText( '' ).addClass( 'hidden' );
 			});
+		});
+	}
+
+	function setupUploadHandler( httpContext:HttpContext ) {
+		var fileInput = Std.instance( "#file-upload".find().first(), InputElement );
+		var textArea = Std.instance( "#content".find().first(), TextAreaElement );
+		fileInput.change(function(e) {
+			var currentPostID = Std.parseInt( "#id".find().val() );
+			var fileList = fileInput.files;
+			for ( i in 0...fileList.length ) {
+				var file = fileList[i];
+				var upload = new BrowserFileUpload( "file-upload", file );
+
+				// Insert a placeholder
+				var filename = upload.originalFileName;
+				var tmpText = '<Uploading "${filename}">';
+				var start = textArea.selectionStart;
+				var before = textArea.value.substring( 0, start );
+				var after = textArea.value.substring( textArea.selectionEnd, textArea.textLength );
+				textArea.value = before + tmpText + after;
+				textArea.setSelectionRange( start, tmpText.length );
+
+				// Upload the file using our API
+				var attachmentApi = httpContext.injector.getInstance( AttachmentApiAsync );
+				attachmentApi.uploadImage( currentPostID, upload ).handle(function(outcome) {
+					switch outcome {
+						case Success(url):
+							// Replace the placeholder with a link or an image
+							var newText = '[${filename}]($url)';
+							if ( upload.contentType.startsWith("image/") )
+								newText = '!'+newText;
+							textArea.value = textArea.value.replace( tmpText, newText );
+							textArea.trigger( "keyup" );
+						case Failure(err):
+							ufError( 'Failed: $err' );
+					}
+				});
+			}
 		});
 	}
 }
