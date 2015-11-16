@@ -19,22 +19,28 @@ class SetupEditFormAction extends UFClientAction<Noise> {
 		updatePreviewOnKeypress();
 		updateUrlAndCheckItIsUnique( httpContext );
 		setupUploadHandler( httpContext );
+		setupHeaderUploadHandler( httpContext );
 	}
 
 	function updatePreviewOnKeypress() {
 		var titleInput = "#title".find().first();
 		var editTextArea = "#content".find().first();
 		var introTextArea = "#introduction".find().first();
+		var headerImageInput = "#headerImage".find().first();
 		var previewBox = "#preview".find().first();
 		var postUrl = "#post-url".find().attr( "href" );
 
 		function updatePreview( ?e ) {
-			// Update the preview
-			var title = titleInput.val();
-			var intro = introTextArea.val();
+			// Update the preview header
+			"#preview header h1".find().setText( titleInput.val() );
+			"#preview header p.lead".find().setText( introTextArea.val() );
+			var headerImage =
+				if ( true || headerImageInput.val()!="" && headerImageInput.val()!="null" ) 'url("${postUrl}files/${headerImageInput.val()}")'
+				else "";
+			"#preview header".find().setCSS( "background-image", headerImage, true );
+			// Update the preview content
 			var md = editTextArea.val().replace( '(~/', '(${postUrl}files/' );
-			var html = Markdown.markdownToHtml( md );
-			previewBox.setInnerHTML( '<h1>$title</h1><p class="lead">$intro</p>'+html );
+			"#preview section".find().setInnerHTML( Markdown.markdownToHtml(md) );
 			// Resize the text box
 			var textarea:HtmlElement = cast editTextArea;
 			if ( textarea.clientHeight < textarea.scrollHeight ) {
@@ -107,6 +113,30 @@ class SetupEditFormAction extends UFClientAction<Noise> {
 							if ( upload.contentType.startsWith("image/") )
 								newText = '!'+newText;
 							textArea.value = textArea.value.replace( tmpText, newText );
+							textArea.trigger( "keyup" );
+						case Failure(err):
+							ufError( 'Failed: $err' );
+					}
+				});
+			}
+		});
+	}
+
+	function setupHeaderUploadHandler( httpContext:HttpContext ) {
+		var headerUploadInput = Std.instance( "#header-upload".find().first(), InputElement );
+		var headerUrlInput = "#headerImage".find();
+		var textArea = "#content".find();
+
+		headerUploadInput.change(function(e) {
+			var currentPostID = Std.parseInt( "#id".find().val() );
+			var file = headerUploadInput.files[0];
+			if ( file!=null ) {
+				var upload = new BrowserFileUpload( "header-upload", file );
+				var attachmentApi = httpContext.injector.getInstance( AttachmentApiAsync );
+				attachmentApi.uploadHeaderImage( currentPostID, upload ).handle(function(outcome) {
+					switch outcome {
+						case Success(url):
+							headerUrlInput.setVal( upload.originalFileName );
 							textArea.trigger( "keyup" );
 						case Failure(err):
 							ufError( 'Failed: $err' );

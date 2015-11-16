@@ -23,5 +23,13 @@ class AttachmentApi extends UFApi {
 			return '~/${upload.originalFileName.urlEncode()}';
 		}
 	}
+
+	public function uploadHeaderImage( postID:DatabaseID<BlogPost>, upload:UFFileUpload ):Surprise<String,Error> {
+		var result = uploadImage( postID, upload );
+		var post = BlogPost.manager.get( postID );
+		post.headerImage = upload.originalFileName;
+		post.save();
+		return result;
+	}
 }
 class AttachmentApiAsync extends UFAsyncApi<AttachmentApi> {}

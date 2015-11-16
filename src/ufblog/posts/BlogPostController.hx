@@ -39,6 +39,7 @@ class BlogPostController extends Controller {
 		?authorID:Int,
 		content:String,
 		introduction:String,
+		?headerImage:String,
 		?tags:Array<String>,
 		publish:Bool
 	} ):FutureActionOutcome {
@@ -49,6 +50,7 @@ class BlogPostController extends Controller {
 			title: args.title.trim(),
 			url: args.url.trim(),
 			introduction: args.introduction,
+			headerImage: args.headerImage,
 			publishDate:
 				if ( args.publish==false ) null
 				else if ( args.publishDate!=null ) args.publishDate
