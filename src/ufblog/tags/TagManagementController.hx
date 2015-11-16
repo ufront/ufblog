@@ -40,7 +40,7 @@ class TagManagementController extends Controller {
 	@:route(GET,"/$name/delete/")
 	public function deleteTag( name:String ) {
 		return blogTagApi.deleteTag( name ) >> function(n:Noise) {
-			return new RedirectResult( baseUri+"tags/" );
+			return new RedirectResult( baseUri );
 		}
 	}
 
@@ -48,7 +48,7 @@ class TagManagementController extends Controller {
 	public function saveTag( args:{ ?id:Null<Int>, name:String, title:String, description:String } ) {
 		var tag = new BlogTag().init( id=args.id, name=args.name, title=args.title, description=args.description );
 		return blogTagApi.saveTag( tag ) >> function(n:Noise) {
-			return new RedirectResult( baseUri+"tags/" );
+			return new RedirectResult( baseUri );
 		}
 	}
 
