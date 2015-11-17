@@ -40,7 +40,7 @@ class AttachmentApi extends UFApi {
 	**/
 	public function getResizedImage( path:String, ?newWidth:Int, ?newHeight:Int ):String {
 		if ( newWidth==null && newHeight==null )
-			return path;
+			newWidth = 700; // TODO: make this configurable.
 		var ratioName =
 			if (newWidth!=null && newHeight!=null) '${newWidth}x${newHeight}'
 			else if (newWidth!=null)'${newWidth}xAUTO'
