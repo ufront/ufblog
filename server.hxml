@@ -4,6 +4,7 @@
 -lib markdown
 -lib objectinit
 -lib cleversort
+-lib ImageMagick
 -lib ufront-ufadmin
 -cp src
 -main Server

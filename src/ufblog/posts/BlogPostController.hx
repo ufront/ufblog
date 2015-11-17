@@ -1,6 +1,7 @@
 package ufblog.posts;
 
 import ufront.MVC;
+import ufblog.posts.AttachmentApi;
 import ufblog.posts.BlogPostApi;
 import ufblog.tags.BlogTag;
 import ufblog.tags.BlogTagApi;
@@ -14,6 +15,7 @@ class BlogPostController extends Controller {
 
 	@inject public var blogApi:BlogPostApiAsync;
 	@inject public var blogTagApi:BlogTagApiAsync;
+	@inject public var attachmentApi:AttachmentApi;
 
 	@:route("/new/")
 	public function newPost():FutureActionOutcome {
@@ -83,13 +85,18 @@ class BlogPostController extends Controller {
 		return blogApi.getPostBySlug( postSlug ) >> showPost;
 	}
 
-	@:route("/$postSlug/files/$filename")
-	public function attachments( postSlug:String, filename:String ) {
-		return blogApi.getPostBySlug( postSlug ) >> function (post:BlogPost) {
-			var path = context.contentDirectory+'blog-uploads/${post.id}/${filename}';
-			return new DirectFilePathResult( path );
-		};
-	}
+	#if server
+		@:route("/$postSlug/files/$filename")
+		public function attachments( postSlug:String, filename:String, ?args:{ w:Int, h:Int } ) {
+			// TODO: same problem as in `editPost`, for now we need explicit typing.
+			var postSurprise:Surprise<BlogPost,Error> = blogApi.getPostBySlug( postSlug );
+			return postSurprise >> function (post:BlogPost):DirectFilePathResult {
+				var rawPath = context.contentDirectory+'blog-uploads/${post.id}/${filename}';
+				var resizedPath = attachmentApi.getResizedImage( rawPath, args.w, args.h );
+				return new DirectFilePathResult( resizedPath );
+			};
+		}
+	#end
 
 	function redirectToPost( post:BlogPost ):ActionResult {
 		return new RedirectResult( baseUri+post.url );
