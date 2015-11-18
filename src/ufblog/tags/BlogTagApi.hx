@@ -12,9 +12,11 @@ class BlogTagApi extends UFApi {
 		return tags;
 	}
 
-	public function getTagByName( name:String ):Outcome<BlogTag,Error> {
+	public function getTagByName( name:String ):BlogTag {
 		var tag = BlogTag.manager.select( $name==name );
-		return BlogUtil.outcomeOf( tag );
+		if ( tag==null )
+			throw HttpError.pageNotFound();
+		return tag;
 	}
 
 	public function saveTag( tag:BlogTag ):Void {
@@ -22,7 +24,7 @@ class BlogTagApi extends UFApi {
 	}
 
 	public function deleteTag( tagName:String ):Void {
-		var tag = getTagByName( tagName ).sure();
+		var tag = getTagByName( tagName );
 		tag.posts.refreshList();
 		tag.posts.clear();
 		tag.delete();

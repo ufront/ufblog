@@ -14,10 +14,6 @@ class BlogUtil {
 		canManageTags: context.auth.hasPermission( BlogPermissions.ViewUserList ),
 	}
 
-	public static function outcomeOf<T>( val:Null<T>, ?pos ):Outcome<T,Error> {
-		return ( val!=null ) ? Success( val ) : Failure( HttpError.pageNotFound(pos) );
-	}
-
 	public static function dateString( d:Date ) return (d!=null) ? d.format("%Y-%m-%d") : "";
 	public static function dateTimeString( d:Date ) return (d!=null) ? d.format("%Y-%m-%d %H:%M:%S") : "";
 }

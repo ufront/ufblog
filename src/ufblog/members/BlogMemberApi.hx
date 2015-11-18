@@ -3,6 +3,7 @@ package ufblog.members;
 import ufront.MVC;
 import ufront.EasyAuth;
 import tink.CoreApi;
+using CleverSort;
 
 class BlogMemberApi extends UFApi {
 	#if server
@@ -10,27 +11,29 @@ class BlogMemberApi extends UFApi {
 		@inject public var easyAuth:ufront.auth.EasyAuth;
 	#end
 
-	public function createUser( member:BlogMember, username:String, password:String ):Outcome<BlogMember,Error> {
-		try {
-			var u = new User( username, password );
-			u.save();
-			member.user = u;
-			member.save();
-			return Success( member );
-		}
-		catch ( e:Dynamic ) return Failure( HttpError.wrap(e, "Failed to create new blog member") );
+	public function getAllMembers():Array<BlogMember> {
+		var tags = Lambda.array( BlogMember.manager.all() );
+		tags.cleverSort( _.user.username );
+		return tags;
 	}
 
-	public function getCurrentMember():Outcome<BlogMember,Error> {
+	public function createUser( member:BlogMember, username:String, password:String ):BlogMember {
+		var u = new User( username, password );
+		u.save();
+		member.user = u;
+		member.save();
+		return member;
+	}
+
+	public function getCurrentMember():BlogMember {
 		if ( easyAuth.isLoggedIn() ) {
 			var u = easyAuth.getCurrentUser();
 			var member = BlogMember.manager.select( $userID==u.id );
-			return
-				if ( member==null) Failure( new Error(404,'No BlogMember matching current user $u') )
-				else Success( member );
+			if ( member==null)
+				throw new Error( 404, 'No BlogMember matching current user $u' );
+			return member;
 		}
-		else return Failure( HttpError.authError(ANotLoggedIn) );
-
+		else return throw HttpError.authError(ANotLoggedIn);
 	}
 }
 class BlogMemberApiAsync extends UFAsyncApi<BlogMemberApi> {}
