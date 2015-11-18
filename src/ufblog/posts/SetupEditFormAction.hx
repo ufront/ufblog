@@ -28,18 +28,18 @@ class SetupEditFormAction extends UFClientAction<Noise> {
 		var introTextArea = "#introduction".find().first();
 		var headerImageInput = "#headerImage".find().first();
 		var previewBox = "#preview".find().first();
-		var postUrl = "#post-url".find().attr( "href" );
 
 		function updatePreview( ?e ) {
 			// Update the preview header
+			var postUrl = "#post-url".find().val();
 			"#preview header h1".find().setText( titleInput.val() );
 			"#preview header p.lead".find().setText( introTextArea.val() );
 			var headerImage =
-				if ( true || headerImageInput.val()!="" && headerImageInput.val()!="null" ) 'url("${postUrl}files/${headerImageInput.val()}")'
+				if ( headerImageInput.val()!="" && headerImageInput.val()!="null" ) 'url("$postUrl/files/${headerImageInput.val()}")'
 				else "";
 			"#preview header".find().setCSS( "background-image", headerImage, true );
 			// Update the preview content
-			var md = editTextArea.val().replace( '(~/', '(${postUrl}files/' );
+			var md = editTextArea.val().replace( '(~/', '($postUrl/files/' );
 			"#preview section".find().setInnerHTML( Markdown.markdownToHtml(md) );
 			// Resize the text box
 			var textarea:HtmlElement = cast editTextArea;
