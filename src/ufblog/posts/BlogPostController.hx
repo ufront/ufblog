@@ -37,6 +37,8 @@ class BlogPostController extends Controller {
 		?id:Null<Int>,
 		title:String,
 		url:String,
+		?created:Date,
+		?modified:Date,
 		?publishDate:Date,
 		?authorID:Int,
 		content:String,
@@ -47,6 +49,8 @@ class BlogPostController extends Controller {
 	} ):FutureActionOutcome {
 		var post = new BlogPost().init({
 			id: args.id,
+			created: args.created,
+			modified: args.modified,
 			authorID: args.authorID,
 			content: args.content,
 			title: args.title.trim(),
