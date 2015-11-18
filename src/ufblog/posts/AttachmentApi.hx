@@ -63,7 +63,9 @@ class AttachmentApi extends UFApi {
 				var ratio = img.width / img.height;
 				newWidth = Math.round( ratio*newHeight );
 			}
-			img.resize( newWidth, newHeight );
+			if ( newWidth<img.width && newHeight<img.height ) {
+				img.resize( newWidth, newHeight );
+			}
 			img.setCompressionQuality( 75 );
 			img.save( newPath );
 		}
