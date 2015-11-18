@@ -9,6 +9,12 @@ import ufblog.tags.*;
 #end
 
 class BlogRoutes extends Controller {
+
+	@post public function setupGlobalHelpers() {
+		ViewResult.globalValues.set( "date", BlogUtil.dateString );
+		ViewResult.globalValues.set( "datetime", BlogUtil.dateTimeString );
+	}
+
 	#if server
 		@:route("/ufadmin/*") public var ufadmin:UFAdminHomeController;
 	#end
