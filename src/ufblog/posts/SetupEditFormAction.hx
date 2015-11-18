@@ -8,6 +8,7 @@ import ufblog.posts.AttachmentApi;
 import ufront.web.upload.BrowserFileUpload;
 #if client
 	import js.html.*;
+	import js.Browser.*;
 	using Detox;
 	using StringTools;
 #end
@@ -87,6 +88,8 @@ class SetupEditFormAction extends UFClientAction<Noise> {
 	function setupUploadHandler( httpContext:HttpContext ) {
 		var fileInput = Std.instance( "#file-upload".find().first(), InputElement );
 		var textArea = Std.instance( "#content".find().first(), TextAreaElement );
+
+		fileInput.on("click", checkSavedBeforeUpload);
 		fileInput.change(function(e) {
 			var currentPostID = Std.parseInt( "#id".find().val() );
 			var fileList = fileInput.files;
@@ -127,6 +130,7 @@ class SetupEditFormAction extends UFClientAction<Noise> {
 		var headerUrlInput = "#headerImage".find();
 		var textArea = "#content".find();
 
+		headerUploadInput.on("click", checkSavedBeforeUpload);
 		headerUploadInput.change(function(e) {
 			var currentPostID = Std.parseInt( "#id".find().val() );
 			var file = headerUploadInput.files[0];
@@ -144,5 +148,13 @@ class SetupEditFormAction extends UFClientAction<Noise> {
 				});
 			}
 		});
+	}
+
+	function checkSavedBeforeUpload(e) {
+		var currentPostID = Std.parseInt( "#id".find().val() );
+		if ( currentPostID==null ) {
+			alert( 'You must save this post before uploading images or attachments' );
+			e.preventDefault();
+		}
 	}
 }
