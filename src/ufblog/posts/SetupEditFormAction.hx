@@ -67,8 +67,8 @@ class SetupEditFormAction extends UFClientAction<Noise> {
 			var title = titleInput.val();
 			var url = BlogPost.urlFromTitle( title );
 			urlInput.setVal( url );
-			urlInput.change();
 		});
+		titleInput.change(function(e) urlInput.trigger("change"));
 		urlInput.change(function(e) {
 			var currentPostID = Std.parseInt( "#id".find().val() );
 			var postApi = httpContext.injector.getInstance( BlogPostApiAsync );
