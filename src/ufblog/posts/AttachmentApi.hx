@@ -36,9 +36,14 @@ class AttachmentApi extends UFApi {
 
 	/**
 	Get the path for a resized version of an image.
-	If the resized image does not exist in the expected `${width}x${height}` subdirectory, then it will be created.
+
+	- If the resized image does not exist in the expected `${width}x${height}` subdirectory, then it will be created and the new path returned.
+	- If the resized image already exists, the new path to it will be returned.
+	- If the path doesn't have the extension `jpg`, `jpeg`, `png`, or `gif` then the original path will be returned.
 	**/
 	public function getResizedImage( path:String, ?newWidth:Int, ?newHeight:Int ):String {
+		if ( ['gif','jpg','jpeg','png'].indexOf(path.extension().toLowerCase())==-1 )
+			return path;
 		if ( newWidth==null && newHeight==null )
 			newWidth = 700; // TODO: make this configurable.
 		var ratioName =
