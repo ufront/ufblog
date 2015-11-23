@@ -19,7 +19,8 @@ class BlogListController extends Controller {
 	@:route("/page/$page/")
 	public function allPosts( page:Int ) {
 		return blogApi.getPostList( getLimit(page) ) >> function(posts:Array<BlogPost>) {
-			return showPostList( 'Haxe Blog', 'Haxe Blog - Page $page.', posts );
+			var page = (page!=1) ? ' - Page $page' : '';
+			return showPostList( 'Haxe Blog', 'Haxe Blog$page', posts );
 		};
 	}
 
@@ -35,7 +36,8 @@ class BlogListController extends Controller {
 		return blogApi.getTag( tagName, getLimit(page) ) >> function(pair:Pair<BlogTag,Array<BlogPost>>) {
 			var tag = pair.a;
 			var posts = pair.b;
-			return showPostList( 'Haxe Blog - ${tag.title} - Page $page', tag.description, posts );
+			var page = (page!=1) ? ' - Page $page' : '';
+			return showPostList( 'Haxe Blog - ${tag.title}$page', tag.description, posts );
 		};
 	}
 
@@ -51,7 +53,8 @@ class BlogListController extends Controller {
 		return blogApi.getMember( authorName, getLimit(page) ) >> function(pair:Pair<BlogMember,Array<BlogPost>>) {
 			var member = pair.a;
 			var posts = pair.b;
-			return showPostList( 'Haxe Blog - ${member.name} - Page $page', member.name, posts );
+			var page = (page!=1) ? ' - Page $page' : '';
+			return showPostList( 'Haxe Blog - ${member.name}$page', member.name, posts );
 		};
 	}
 
