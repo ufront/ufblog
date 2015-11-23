@@ -12,6 +12,10 @@
     "ufront-mvc": "",
     "ufront-orm": "",
     "ufront-easyauth": "",
-    "ImageMagick": ""
+    "ImageMagick": "",
+    "cleversort": "",
+    "markdown": "",
+    "objectinit": "",
+    "detox": ""
   }
 }
