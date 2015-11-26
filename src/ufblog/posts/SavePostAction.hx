@@ -24,19 +24,15 @@ class SavePostAction extends UFClientAction<String> {
 		var blogPost = readBlogPostFromForm( publishOption );
 		var tagNames = [for (opt in "#tags option:checked".find()) opt.attr("value")];
 		var blogPostApi = ctx.injector.getInstance( BlogPostApiAsync );
+		var baseUri = "#base-uri".find().val();
 		blogPostApi.updatePost( blogPost, tagNames ).handle(function (outcome) {
 			switch outcome {
 				case Success(blogPost):
 					// Replace the URL in the edit form (in case it's changed) and update the ID input.
-					var urlParts = ctx.getRequestUri().split("/");
-					urlParts.pop();
-					urlParts.pop();
-					urlParts.push( blogPost.url );
-					urlParts.push( "edit" );
-					var newUrl = ctx.generateUri( urlParts.join("/") );
-					PushState.silentReplace( newUrl );
+					var postUrl = ctx.generateUri( baseUri+blogPost.url );
+					PushState.silentReplace( postUrl+'/edit/' );
 					"#id".find().setVal( ""+blogPost.id );
-					"#post-url".find().setVal( ctx.generateUri("/"+blogPost.url) );
+					"#post-url".find().setVal( postUrl );
 					// TODO: something less brutal than an alert.
 					window.alert( 'Saved successfully' );
 				case Failure(err):
