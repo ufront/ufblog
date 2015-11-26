@@ -14,6 +14,7 @@ class AttachmentApi extends UFApi {
 	@inject("contentDirectory") public var contentDir:String;
 
 	public function uploadImage( postID:DatabaseID<BlogPost>, upload:UFFileUpload ):Surprise<String,Error> {
+		auth.requirePermission( BlogPermissions.WritePost );
 		var post = BlogPost.manager.get( postID );
 		if ( post==null )
 			throw HttpError.pageNotFound();
@@ -27,6 +28,7 @@ class AttachmentApi extends UFApi {
 	}
 
 	public function uploadHeaderImage( postID:DatabaseID<BlogPost>, upload:UFFileUpload ):Surprise<String,Error> {
+		auth.requirePermission( BlogPermissions.WritePost );
 		var result = uploadImage( postID, upload );
 		var post = BlogPost.manager.get( postID );
 		post.headerImage = upload.originalFileName;

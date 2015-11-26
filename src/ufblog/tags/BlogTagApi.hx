@@ -20,10 +20,12 @@ class BlogTagApi extends UFApi {
 	}
 
 	public function saveTag( tag:BlogTag ):Void {
+		auth.requirePermission( BlogPermissions.ManageTags );
 		tag.save();
 	}
 
 	public function deleteTag( tagName:String ):Void {
+		auth.requirePermission( BlogPermissions.ManageTags );
 		var tag = getTagByName( tagName );
 		tag.posts.refreshList();
 		tag.posts.clear();

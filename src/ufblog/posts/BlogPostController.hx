@@ -115,6 +115,7 @@ class BlogPostController extends Controller {
 	}
 
 	function showForm( post:BlogPost ):FutureActionOutcome {
+		context.auth.requirePermission( BlogPermissions.WritePost );
 		return blogTagApi.getAllTags() >> function( tags:Array<BlogTag> ):ActionResult {
 			var title = (post.title=="") ? "New Post" : '"${post.title}"';
 			return new PartialViewResult({

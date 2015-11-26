@@ -12,6 +12,7 @@ class TagManagementController extends Controller {
 
 	@:route(GET,"/")
 	public function manageTags() {
+		context.auth.requirePermission( BlogPermissions.ManageTags );
 		return blogTagApi.getAllTags() >> function(tags:Array<BlogTag>) {
 			return new PartialViewResult({
 				title: "Blog Tags",

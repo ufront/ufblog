@@ -13,12 +13,14 @@ class BlogMemberApi extends UFApi {
 	#end
 
 	public function getAllMembers():Array<BlogMember> {
+		auth.requirePermission( BlogPermissions.ViewUserList );
 		var members = [for(m in BlogMember.manager.all()) setSerialization(m)];
 		members.cleverSort( _.user.username );
 		return members;
 	}
 
 	public function getMemberByUsername( username:String ):BlogMember {
+		auth.requirePermission( BlogPermissions.ViewUserList );
 		var user = User.manager.select( $username==username );
 		if ( user==null )
 			throw HttpError.pageNotFound();
@@ -48,6 +50,7 @@ class BlogMemberApi extends UFApi {
 	}
 
 	public function updatePermissions( username:String, permissions:Array<EnumValue> ):Void {
+		auth.requirePermission( BlogPermissions.ChangePermissions );
 		var member = getMemberByUsername( username );
 		for ( p in permissions )
 			easyAuthApi.assignPermissionToUser( p, member.userID );
