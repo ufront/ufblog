@@ -11,8 +11,11 @@ import ufblog.tags.*;
 class BlogRoutes extends Controller {
 
 	@post public function setupGlobalHelpers() {
+		context.injector.map( String, "blogUri" ).toValue( baseUri );
 		ViewResult.globalValues.set( "date", BlogUtil.dateString );
 		ViewResult.globalValues.set( "datetime", BlogUtil.dateTimeString );
+		ViewResult.globalValues.set( "blogUri", baseUri );
+		ViewResult.globalPartials.set( "adminToolbar", TFromEngine("/blog/admin/adminToolbar") );
 	}
 
 	#if server
