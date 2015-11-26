@@ -111,7 +111,7 @@ class BlogPostController extends Controller {
 			title: post.title,
 			description: post.introduction,
 			post: post
-		}, "post" );
+		}, "post" ).addPartial( 'postMeta', '/blog/postMeta' );
 	}
 
 	function showForm( post:BlogPost ):FutureActionOutcome {

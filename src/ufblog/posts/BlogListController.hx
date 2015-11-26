@@ -65,7 +65,9 @@ class BlogListController extends Controller {
 			title: title,
 			description: description,
 			posts: posts,
-		}, "list").setVars( BlogUtil.addPermissionValues(context) );
+		}, "list")
+		.setVars( BlogUtil.addPermissionValues(context) )
+		.addPartial( 'postMeta', '/blog/postMeta' );
 	}
 
 	function getLimit( page:Int ):PostLimit {
