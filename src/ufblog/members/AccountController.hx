@@ -11,6 +11,12 @@ class AccountController extends Controller {
 
 	@inject public var blogMemberApi:BlogMemberApiAsync;
 	@inject public var easyAuthApi:EasyAuthApiAsync;
+	@inject("blogUri") public var blogUri:String;
+
+	@:route("/")
+	public function accounts() {
+		return new RedirectResult( baseUri+"login/" );
+	}
 
 	@:route(GET,"/login")
 	public function login() {
@@ -29,7 +35,7 @@ class AccountController extends Controller {
 	public function doLogin( args:{ username:String, password:String } ):Surprise<ActionResult,Error> {
 		return context.session.init()
 			>> function(n:Noise) return easyAuthApi.attemptLogin( args.username, args.password )
-			>> function(u:User):ActionResult return new RedirectResult( "/" );
+			>> function(u:User):ActionResult return new RedirectResult( blogUri );
 	}
 
 	@:route(GET,"/signup")
