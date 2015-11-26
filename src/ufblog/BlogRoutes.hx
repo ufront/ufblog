@@ -12,9 +12,11 @@ class BlogRoutes extends Controller {
 
 	@post public function setupGlobalHelpers() {
 		context.injector.map( String, "blogUri" ).toValue( baseUri );
-		ViewResult.globalValues.set( "date", BlogUtil.dateString );
-		ViewResult.globalValues.set( "datetime", BlogUtil.dateTimeString );
 		ViewResult.globalValues.set( "blogUri", baseUri );
+		ViewResult.globalHelpers.set( "date", BlogUtil.dateString );
+		ViewResult.globalHelpers.set( "datetime", BlogUtil.dateTimeString );
+		ViewResult.globalHelpers.set( "gravatar", BlogUtil.gravatar );
+		ViewResult.globalHelpers.set( "hnLink", BlogUtil.hnLink.bind(context) );
 		ViewResult.globalPartials.set( "adminToolbar", TFromEngine("/blog/admin/adminToolbar") );
 	}
 
