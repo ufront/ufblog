@@ -111,7 +111,9 @@ class BlogPostController extends Controller {
 			title: post.title,
 			description: post.introduction,
 			post: post
-		}, "post.erazor" ).addPartial( 'postMeta', '/blog/postMeta.erazor' );
+		}, "post.erazor" )
+		.setVars( BlogUtil.addPermissionValues(context) )
+		.addPartial( 'postMeta', '/blog/postMeta.erazor' );
 	}
 
 	function showForm( post:BlogPost ):FutureActionOutcome {
@@ -123,7 +125,9 @@ class BlogPostController extends Controller {
 				description: "",
 				post: post,
 				tags: tags,
-			}, "postForm.erazor" ).addClientAction( SetupEditFormAction );
+			}, "postForm.erazor" )
+			.setVars( BlogUtil.addPermissionValues(context) )
+			.addClientAction( SetupEditFormAction );
 		}
 	}
 }

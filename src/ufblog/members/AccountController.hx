@@ -38,6 +38,12 @@ class AccountController extends Controller {
 			>> function(u:User):ActionResult return new RedirectResult( blogUri );
 	}
 
+	@:route("/logout")
+	public function logout():Surprise<ActionResult,Error> {
+		return easyAuthApi.logout()
+			>> function(n:Noise):ActionResult return new RedirectResult( blogUri );
+	}
+
 	@:route(GET,"/signup")
 	public function signupForm() {
 		return new PartialViewResult({

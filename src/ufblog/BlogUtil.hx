@@ -12,6 +12,7 @@ using DateTools;
 class BlogUtil {
 
 	public static function addPermissionValues( context:HttpContext ):TemplateData return {
+		isLoggedIn: context.auth.isLoggedIn(),
 		canPostNew: context.auth.hasPermission( BlogPermissions.WritePost ),
 		canViewDrafts: context.auth.hasPermission( BlogPermissions.ViewDraftPosts ),
 		canViewUserList: context.auth.hasPermission( BlogPermissions.ViewUserList ),
