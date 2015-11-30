@@ -17,7 +17,7 @@ class BlogRoutes extends Controller {
 		ViewResult.globalHelpers.set( "datetime", BlogUtil.dateTimeString );
 		ViewResult.globalHelpers.set( "gravatar", BlogUtil.gravatar );
 		ViewResult.globalHelpers.set( "hnLink", BlogUtil.hnLink.bind(context) );
-		ViewResult.globalPartials.set( "adminToolbar", TFromEngine("/blog/admin/adminToolbar") );
+		ViewResult.globalPartials.set( "adminToolbar", TFromEngine("/blog/admin/adminToolbar.erazor") );
 	}
 
 	#if server

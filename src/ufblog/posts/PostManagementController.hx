@@ -15,7 +15,7 @@ class PostManagementController extends Controller {
 				title: 'Haxe Blog',
 				description: 'Manage posts',
 				posts: posts,
-			}, "managePosts").setVars( BlogUtil.addPermissionValues(context) );
+			}, "managePosts.erazor").setVars( BlogUtil.addPermissionValues(context) );
 		};
 	}
 }

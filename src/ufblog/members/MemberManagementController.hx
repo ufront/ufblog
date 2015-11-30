@@ -32,7 +32,7 @@ class MemberManagementController extends Controller {
 				title: "Blog Members",
 				description: "Manage the members of your blog",
 				members: members,
-			}, "manageUsers").setVars( BlogUtil.addPermissionValues(context) );
+			}, "manageUsers.erazor").setVars( BlogUtil.addPermissionValues(context) );
 		}
 	}
 
@@ -46,7 +46,7 @@ class MemberManagementController extends Controller {
 				permissions: allPermissions,
 				enumName: enumName,
 				enumPath: enumPath,
-			}, "editUser").setVars( BlogUtil.addPermissionValues(context) );
+			}, "editUser.erazor").setVars( BlogUtil.addPermissionValues(context) );
 		}
 	}
 

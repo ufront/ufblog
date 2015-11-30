@@ -18,7 +18,7 @@ class TagManagementController extends Controller {
 				title: "Blog Tags",
 				description: "Manage the tags used on your blog",
 				tags: tags,
-			}, "manageTags").setVars( BlogUtil.addPermissionValues(context) );
+			}, "manageTags.erazor").setVars( BlogUtil.addPermissionValues(context) );
 		}
 	}
 
@@ -57,6 +57,6 @@ class TagManagementController extends Controller {
 		return new PartialViewResult({
 			title: 'Edit ${tag.title} tag [${tag.name}]',
 			tag: tag,
-		}, "editTag").setVars( BlogUtil.addPermissionValues(context) );
+		}, "editTag.erazor").setVars( BlogUtil.addPermissionValues(context) );
 	}
 }

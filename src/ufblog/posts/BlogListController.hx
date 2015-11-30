@@ -65,9 +65,9 @@ class BlogListController extends Controller {
 			title: title,
 			description: description,
 			posts: posts,
-		}, "list")
+		}, "list.erazor")
 		.setVars( BlogUtil.addPermissionValues(context) )
-		.addPartial( 'postMeta', '/blog/postMeta' );
+		.addPartial( 'postMeta', '/blog/postMeta.erazor' );
 	}
 
 	function getLimit( page:Int ):PostLimit {
