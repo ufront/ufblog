@@ -50,8 +50,8 @@ class MemberManagementController extends Controller {
 		}
 	}
 
-	@:route(POST,"/$user")
-	public function saveUser( user:String, args:{ permissions:Array<String> } ) {
+	@:route(POST,"/$user/permissions/")
+	public function saveUserPermissions( user:String, args:{ permissions:Array<String> } ) {
 		var permissions = [];
 		for ( pString in args.permissions ) {
 			var parts = pString.split( ":" );
