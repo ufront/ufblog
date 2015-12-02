@@ -27,6 +27,7 @@ class MemberManagementController extends Controller {
 
 	@:route(GET,"/")
 	public function showUserList() {
+		PartialViewResult.startLoadingAnimations();
 		return blogMemberApi.getAllMembers() >> function(members:Array<BlogMember>) {
 			return new PartialViewResult({
 				title: "Blog Members",
@@ -38,6 +39,7 @@ class MemberManagementController extends Controller {
 
 	@:route(GET,"/$user")
 	public function showUser( user:String ) {
+		PartialViewResult.startLoadingAnimations();
 		return blogMemberApi.getMemberByUsername( user ) >> function(member:BlogMember) {
 			return new PartialViewResult({
 				title: member.name,
@@ -52,6 +54,7 @@ class MemberManagementController extends Controller {
 
 	@:route(POST,"/$user/permissions/")
 	public function saveUserPermissions( user:String, args:{ permissions:Array<String> } ) {
+		PartialViewResult.startLoadingAnimations();
 		var permissions = [];
 		for ( pString in args.permissions ) {
 			var parts = pString.split( ":" );

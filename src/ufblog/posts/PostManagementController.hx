@@ -10,6 +10,7 @@ class PostManagementController extends Controller {
 
 	@:route(GET,"/")
 	public function managePosts() {
+		PartialViewResult.startLoadingAnimations();
 		return blogApi.getAllPosts() >> function(posts:Array<BlogPost>) {
 			return new PartialViewResult({
 				title: 'Haxe Blog',

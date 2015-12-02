@@ -18,6 +18,7 @@ class BlogListController extends Controller {
 
 	@:route("/page/$page/")
 	public function allPosts( page:Int ) {
+		PartialViewResult.startLoadingAnimations();
 		return blogApi.getPostList( getLimit(page) ) >> function(posts:Array<BlogPost>) {
 			var page = (page!=1) ? ' - Page $page' : '';
 			return showPostList( 'Haxe Blog', 'Haxe Blog$page', posts );
@@ -33,6 +34,7 @@ class BlogListController extends Controller {
 
 	@:route("/tag/$tagName/page/$page/")
 	public function tag( tagName:String, page:Int ) {
+		PartialViewResult.startLoadingAnimations();
 		return blogApi.getTag( tagName, getLimit(page) ) >> function(pair:Pair<BlogTag,Array<BlogPost>>) {
 			var tag = pair.a;
 			var posts = pair.b;
@@ -50,6 +52,7 @@ class BlogListController extends Controller {
 
 	@:route("/author/$authorName/page/$page/")
 	public function author( authorName:String, page:Int ) {
+		PartialViewResult.startLoadingAnimations();
 		return blogApi.getMember( authorName, getLimit(page) ) >> function(pair:Pair<BlogMember,Array<BlogPost>>) {
 			var member = pair.a;
 			var posts = pair.b;

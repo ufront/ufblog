@@ -19,11 +19,13 @@ class BlogPostController extends Controller {
 
 	@:route("/new/")
 	public function newPost():FutureActionOutcome {
+		PartialViewResult.startLoadingAnimations();
 		return showForm( new BlogPost() );
 	}
 
 	@:route(GET,"/$postSlug/edit/")
 	public function editPost( postSlug:String ):FutureActionOutcome {
+		PartialViewResult.startLoadingAnimations();
 		var post:Surprise<BlogPost,Error> =  blogApi.getPostBySlug( postSlug );
 		// `getPostBySlug` returns a `Surprise<BlogPost,TypedError<...>>`
 		// Because TypedError is invariant with Error when used in a Surprise, the overload does transformation 3.v not 3.i (from the docs)
@@ -47,6 +49,7 @@ class BlogPostController extends Controller {
 		?tags:Array<String>,
 		publish:Bool
 	} ):FutureActionOutcome {
+		PartialViewResult.startLoadingAnimations();
 		var post = new BlogPost().init({
 			id: args.id,
 			created: args.created,
@@ -73,6 +76,7 @@ class BlogPostController extends Controller {
 
 	@:route(GET,"/$postSlug/delete/")
 	public function deletePost( postSlug:String ) {
+		PartialViewResult.startLoadingAnimations();
 		return blogApi.deletePostBySlug( postSlug ) >> function(post:BlogPost) {
 			ufLog( 'Deleted BlogPost#${post.id}: ${post.title} [${post.url}]');
 			return new RedirectResult( this.baseUri );
@@ -81,11 +85,13 @@ class BlogPostController extends Controller {
 
 	@:route("/p/$postID")
 	public function permalink( postID:Int ) {
+		PartialViewResult.startLoadingAnimations();
 		return blogApi.getPostByID( postID ) >> redirectToPost;
 	}
 
 	@:route("/$postSlug")
 	public function viewPost( postSlug:String ) {
+		PartialViewResult.startLoadingAnimations();
 		return blogApi.getPostBySlug( postSlug ) >> showPost;
 	}
 
@@ -103,6 +109,7 @@ class BlogPostController extends Controller {
 	#end
 
 	function redirectToPost( post:BlogPost ):ActionResult {
+		PartialViewResult.startLoadingAnimations();
 		return new RedirectResult( baseUri+post.url );
 	}
 

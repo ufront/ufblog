@@ -12,6 +12,7 @@ class TagManagementController extends Controller {
 
 	@:route(GET,"/")
 	public function manageTags() {
+		PartialViewResult.startLoadingAnimations();
 		context.auth.requirePermission( BlogPermissions.ManageTags );
 		return blogTagApi.getAllTags() >> function(tags:Array<BlogTag>) {
 			return new PartialViewResult({
@@ -24,6 +25,7 @@ class TagManagementController extends Controller {
 
 	@:route(GET,"/new/")
 	public function newTag() {
+		PartialViewResult.startLoadingAnimations();
 		return showTagForm( new BlogTag().init(
 			name="new-tag",
 			title="New Tag",
@@ -33,6 +35,7 @@ class TagManagementController extends Controller {
 
 	@:route(GET,"/$name/")
 	public function editTag( name:String ) {
+		PartialViewResult.startLoadingAnimations();
 		return blogTagApi.getTagByName( name ) >> function(tag:BlogTag) {
 			return showTagForm( tag );
 		}
@@ -40,6 +43,7 @@ class TagManagementController extends Controller {
 
 	@:route(GET,"/$name/delete/")
 	public function deleteTag( name:String ) {
+		PartialViewResult.startLoadingAnimations();
 		return blogTagApi.deleteTag( name ) >> function(n:Noise) {
 			return new RedirectResult( baseUri );
 		}
@@ -47,6 +51,7 @@ class TagManagementController extends Controller {
 
 	@:route(POST,"/save/")
 	public function saveTag( args:{ ?id:Null<Int>, name:String, title:String, description:String } ) {
+		PartialViewResult.startLoadingAnimations();
 		var tag = new BlogTag().init( id=args.id, name=args.name, title=args.title, description=args.description );
 		return blogTagApi.saveTag( tag ) >> function(n:Noise) {
 			return new RedirectResult( baseUri );
