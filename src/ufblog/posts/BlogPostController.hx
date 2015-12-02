@@ -24,7 +24,12 @@ class BlogPostController extends Controller {
 
 	@:route(GET,"/$postSlug/edit/")
 	public function editPost( postSlug:String ):FutureActionOutcome {
-		return showForm( blogApi.getPostBySlug(postSlug) );
+		var post:Surprise<BlogPost,Error> =  blogApi.getPostBySlug( postSlug );
+		// `getPostBySlug` returns a `Surprise<BlogPost,TypedError<...>>`
+		// Because TypedError is invariant with Error when used in a Surprise, the overload does transformation 3.v not 3.i (from the docs)
+		// Then we get `Surprise<Outcome<ActionResult,TypedError>,Error>` instead of `Surprise<ActionResult,Error>`.
+		// TODO: See if we can improve this. Either in tink or in ufront.
+		return post >> showForm;
 	}
 
 	@:route(POST,"/save/")
@@ -81,16 +86,7 @@ class BlogPostController extends Controller {
 
 	@:route("/$postSlug")
 	public function viewPost( postSlug:String ) {
-		var pvr = new PartialViewResult( {}, "post.erazor" );
-		pvr.setVars( BlogUtil.addPermissionValues(context) );
-		pvr.addPartial( 'postMeta', '/blog/postMeta.erazor' );
-		return blogApi.getPostBySlug( postSlug ) >> function(post:BlogPost):ActionResult {
-			return pvr.setVars({
-				title: post.title,
-				description: post.introduction,
-				post: post
-			});
-		}
+		return blogApi.getPostBySlug( postSlug ) >> showPost;
 	}
 
 	#if server
@@ -110,26 +106,28 @@ class BlogPostController extends Controller {
 		return new RedirectResult( baseUri+post.url );
 	}
 
-	function showForm( ?post:BlogPost, ?postSurprise:Surprise<BlogPost,Error> ):FutureActionOutcome {
-		if ( postSurprise==null )
-			postSurprise = Future.sync( Success(post) );
-		var tagSurprise = blogTagApi.getAllTags();
+	function showPost( post:BlogPost ):ActionResult {
+		return new PartialViewResult({
+			title: post.title,
+			description: post.introduction,
+			post: post
+		}, "post.erazor" )
+		.setVars( BlogUtil.addPermissionValues(context) )
+		.addPartial( 'postMeta', '/blog/postMeta.erazor' );
+	}
+
+	function showForm( post:BlogPost ):FutureActionOutcome {
 		context.auth.requirePermission( BlogPermissions.WritePost );
-
-		var pvr = new PartialViewResult( {}, "postForm.erazor" );
-		pvr.setVars( BlogUtil.addPermissionValues(context) );
-		pvr.addClientAction( SetupEditFormAction );
-
-		return postSurprise >> function(post:BlogPost) {
-			return tagSurprise >> function(tags:Array<BlogTag>):ActionResult {
-				var title = (post.title=="") ? "New Post" : '"${post.title}"';
-				return pvr.setVars({
-					title: 'Editing $title',
-					description: "",
-					post: post,
-					tags: tags,
-				});
-			}
+		return blogTagApi.getAllTags() >> function( tags:Array<BlogTag> ):ActionResult {
+			var title = (post.title=="") ? "New Post" : '"${post.title}"';
+			return new PartialViewResult({
+				title: 'Editing $title',
+				description: "",
+				post: post,
+				tags: tags,
+			}, "postForm.erazor" )
+			.setVars( BlogUtil.addPermissionValues(context) )
+			.addClientAction( SetupEditFormAction );
 		}
 	}
 }
