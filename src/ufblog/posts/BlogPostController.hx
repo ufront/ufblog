@@ -5,6 +5,7 @@ import ufblog.posts.AttachmentApi;
 import ufblog.posts.BlogPostApi;
 import ufblog.tags.BlogTag;
 import ufblog.tags.BlogTagApi;
+import ufblog.BlogUtil;
 import tink.CoreApi;
 using ufront.web.result.AddClientActionResult;
 using ObjectInit;
@@ -114,13 +115,16 @@ class BlogPostController extends Controller {
 	}
 
 	function showPost( post:BlogPost ):ActionResult {
-		return new PartialViewResult({
+		var uri = context.generateUri( baseUri+post.url );
+		var result = new PartialViewResult({
 			title: post.title,
 			description: post.introduction,
 			post: post
 		}, "post.erazor" )
 		.setVars( BlogUtil.addPermissionValues(context) )
-		.addPartial( 'postMeta', '/blog/postMeta.erazor' );
+		.addPartial( 'postMeta', '/blog/postMeta.erazor' )
+		.addClientAction( LoadCommentsAction, { id:post.id, uri:uri } );
+		return BlogUtil.addCommentCountScript( result, context );
 	}
 
 	function showForm( post:BlogPost ):FutureActionOutcome {

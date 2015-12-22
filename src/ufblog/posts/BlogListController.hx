@@ -3,6 +3,7 @@ package ufblog.posts;
 import ufblog.posts.BlogPostApi;
 import ufblog.tags.BlogTag;
 import ufblog.members.BlogMember;
+import ufblog.BlogUtil;
 import ufront.MVC;
 import tink.CoreApi;
 
@@ -64,13 +65,14 @@ class BlogListController extends Controller {
 	@:route("/*") public var blogPostController:BlogPostController;
 
 	function showPostList( title:String, description:String, posts:Array<BlogPost> ):ActionResult {
-		return new PartialViewResult({
+		var result = new PartialViewResult({
 			title: title,
 			description: description,
 			posts: posts,
-		}, "list.erazor")
-		.setVars( BlogUtil.addPermissionValues(context) )
-		.addPartial( 'postMeta', '/blog/postMeta.erazor' );
+		}, "list.erazor");
+		result.setVars( BlogUtil.addPermissionValues(context) );
+		result.addPartial( 'postMeta', '/blog/postMeta.erazor' );
+		return BlogUtil.addCommentCountScript( result, context );
 	}
 
 	function getLimit( page:Int ):PostLimit {

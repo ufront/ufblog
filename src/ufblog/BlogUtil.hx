@@ -6,6 +6,7 @@ import ufblog.members.BlogMember;
 import ufblog.posts.BlogPost;
 import tink.CoreApi;
 import haxe.crypto.Md5;
+using ufront.web.result.CallJavascriptResult;
 using StringTools;
 using DateTools;
 
@@ -17,6 +18,16 @@ class BlogUtil {
 		canViewDrafts: context.auth.hasPermission( BlogPermissions.ViewDraftPosts ),
 		canViewUserList: context.auth.hasPermission( BlogPermissions.ViewUserList ),
 		canManageTags: context.auth.hasPermission( BlogPermissions.ViewUserList ),
+	}
+
+	public static function addCommentCountScript( result:ActionResult, context:HttpContext ):ActionResult {
+		if ( context.injector.hasMapping(String,"disqusShortName") ) {
+			var disqusShortName = context.injector.getValue( String, "disqusShortName" );
+			var disqusCountScript = '//${disqusShortName}.disqus.com/count.js';
+			result = result.addInlineJsToResult( 'window.DISQUSWIDGETS = undefined; window.disqus_shortname = "$disqusShortName";' );
+			result = result.addJsScriptToResult( disqusCountScript );
+		}
+		return result;
 	}
 
 	public static function dateString( d:Date ) return (d!=null) ? d.format("%Y-%m-%d") : "";
