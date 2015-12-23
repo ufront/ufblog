@@ -32,10 +32,14 @@ class AccountController extends Controller {
 	}
 
 	@:route(POST,"/login")
-	public function doLogin( args:{ username:String, password:String } ):Surprise<ActionResult,Error> {
-		return context.session.init()
+	public function doLogin( args:{ username:String, password:String } ):Future<ActionResult> {
+		var surprise = context.session.init()
 			>> function(n:Noise) return easyAuthApi.attemptLogin( args.username, args.password )
 			>> function(u:User):ActionResult return new RedirectResult( blogUri );
+		return surprise.map(function(outcome) return switch outcome {
+			case Success(result): result;
+			case Failure(err): showLoginForm( args.username, err.message );
+		});
 	}
 
 	@:route("/logout")
