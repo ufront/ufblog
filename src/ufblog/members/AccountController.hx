@@ -4,6 +4,7 @@ import ufblog.members.BlogMemberApi;
 import ufront.EasyAuth;
 import ufront.MVC;
 import tink.CoreApi;
+using ufront.core.AsyncTools;
 using ObjectInit;
 
 @viewFolder("blog")
@@ -50,27 +51,68 @@ class AccountController extends Controller {
 
 	@:route(GET,"/signup")
 	public function signupForm() {
-		return new PartialViewResult({
-			title: "Sign Up"
-		});
+		return getSignupView({ name:"", email:"", username:"" });
 	}
 
 	@:route(POST,"/signup")
-	public function doSignup( args:{ name:String, email:String, username:String, password1:String, password2:String } ):Surprise<ViewResult,Error> {
+	public function doSignup( args:{ name:String, email:String, username:String, password1:String, password2:String } ):Surprise<ActionResult,Error> {
 		var member = new BlogMember().init({
 			email: args.email,
 			name: args.name,
 		});
 		if ( member.validate()==false ) {
-			var result = new PartialViewResult( args, "signupForm.erazor" ).setVar( "error", "Validation Error: "+member.validationErrors.toString() );
-			return Future.sync( Success(result) );
+			return getSignupView( args, "Validation Error: "+member.validationErrors.toString() ).asGoodSurprise();
 		}
 		else if ( args.password1!=args.password2 ) {
-			var result = new PartialViewResult( args, "signupForm.erazor" ).setVar( "error", "Passwords did not match" );
-			return Future.sync( Success(result) );
+			return getSignupView( args, "Passwords did not match" ).asGoodSurprise();
 		}
-		else return blogMemberApi.createUser( member, args.username, args.password1 ) >> function(member:BlogMember):ViewResult {
+		else return blogMemberApi.createUser( member, args.username, args.password1 ) >> function(member:BlogMember):ActionResult {
 			return new PartialViewResult( { member:member }, "signupSuccess.erazor" );
 		}
+	}
+
+	function getSignupView( args:{ name:String, email:String, username:String }, ?err:String ):ActionResult {
+		var result = new PartialViewResult({
+			title: "Sign Up",
+			error: err,
+			args: args
+		}, "signupForm.erazor" );
+		result.addPartial( "userDetailsForm", "blog/userDetailsForm.erazor" );
+		return result;
+	}
+
+	@:route(GET,"/edit-profile")
+	public function editProfileForm() {
+		return blogMemberApi.getCurrentMember() >> function(m:BlogMember) {
+			return getEditProfileView({ name:m.name, email:m.email, username:m.user.username });
+		}
+	}
+
+	@:route(POST,"/edit-profile")
+	public function doEditProfile( args:{ name:String, email:String, username:String, password1:String, password2:String } ):Surprise<ActionResult,Error> {
+		var member = new BlogMember().init({
+			email: args.email,
+			name: args.name,
+		});
+		var oldUsername = context.currentUserID;
+		if ( member.validate()==false ) {
+			return getEditProfileView( args, "Validation Error: "+member.validationErrors.toString() ).asGoodSurprise();
+		}
+		else if ( args.password1!=args.password2 ) {
+			return getEditProfileView( args, "Passwords did not match" ).asGoodSurprise();
+		}
+		else return blogMemberApi.updateUser( member, oldUsername, args.username, args.password1 ) >> function(member:BlogMember):ActionResult {
+			return getEditProfileView( args, "Profile updated" );
+		}
+	}
+
+	function getEditProfileView( args:{ name:String, email:String, username:String }, ?err:String ):ActionResult {
+		var result = new PartialViewResult({
+			title: "Edit Profile",
+			error: err,
+			args: args
+		}, "editProfile.erazor" );
+		result.addPartial( "userDetailsForm", "blog/userDetailsForm.erazor" );
+		return result;
 	}
 }

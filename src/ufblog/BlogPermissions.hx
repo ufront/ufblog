@@ -10,4 +10,5 @@ enum BlogPermissions {
 	ManageTags;
 	CommentWithoutModeration;
 	ModerateComments;
+	EditAnyUser;
 }

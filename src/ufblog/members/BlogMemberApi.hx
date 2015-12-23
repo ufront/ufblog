@@ -50,6 +50,25 @@ class BlogMemberApi extends UFApi {
 		else return throw HttpError.authError(ANotLoggedIn);
 	}
 
+	public function updateUser( member:BlogMember, oldUsername:String, newUsername:String, newPassword:String ):BlogMember {
+		var dbMember:BlogMember;
+		if ( oldUsername==auth.currentUser.userID ) {
+			dbMember = getCurrentMember();
+		}
+		else {
+			auth.requirePermission( BlogPermissions.EditAnyUser );
+			dbMember = getMemberByUsername( oldUsername );
+		}
+		dbMember.user.username = newUsername;
+		if ( newPassword!="" )
+			dbMember.user.setPassword( newPassword );
+		dbMember.user.save();
+		dbMember.email = member.email;
+		dbMember.name = member.name;
+		dbMember.save();
+		return setSerialization( dbMember );
+	}
+
 	public function updatePermissions( username:String, permissions:Array<EnumValue> ):Void {
 		auth.requirePermission( BlogPermissions.ChangePermissions );
 		var member = getMemberByUsername( username );

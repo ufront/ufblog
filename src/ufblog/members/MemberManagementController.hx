@@ -6,6 +6,7 @@ import ufblog.members.BlogMemberApi;
 import ufblog.BlogUtil;
 import ufblog.BlogPermissions;
 using tink.CoreApi;
+using ObjectInit;
 
 @viewFolder("blog/admin/")
 class MemberManagementController extends Controller {
@@ -28,12 +29,39 @@ class MemberManagementController extends Controller {
 	@:route(GET,"/")
 	public function showUserList() {
 		PartialViewResult.startLoadingAnimations();
-		return blogMemberApi.getAllMembers() >> function(members:Array<BlogMember>) {
+		var blankArgs = { name:"", email:"", username:"" };
+		return getUserListView( blankArgs );
+	}
+
+	@:route(POST,"/new-user")
+	public function processNewUser( args:{ name:String, email:String, username:String, password1:String, password2:String } ) {
+		PartialViewResult.startLoadingAnimations();
+		var member = new BlogMember().init({
+			email: args.email,
+			name: args.name
+		});
+		if ( member.validate()==false ) {
+			return getUserListView( args, "Validation Error: "+member.validationErrors.toString() );
+		}
+		else if ( args.password1!=args.password2 ) {
+			return getUserListView( args, "Passwords did not match" );
+		}
+		else return blogMemberApi.createUser( member, args.username, args.password1 ) >> function(member:BlogMember):ActionResult {
+			return new RedirectResult( baseUri+args.username );
+		}
+	}
+
+	function getUserListView( args:{name:String,email:String,username:String}, ?error:String ):Surprise<ActionResult,Error> {
+		return blogMemberApi.getAllMembers() >> function(members:Array<BlogMember>):ActionResult {
 			return new PartialViewResult({
 				title: "Blog Members",
 				description: "Manage the members of your blog",
 				members: members,
-			}, "manageUsers.erazor").setVars( BlogUtil.addPermissionValues(context) );
+				error: error,
+				args: args
+			}, "manageUsers.erazor")
+			.setVars( BlogUtil.addPermissionValues(context) )
+			.addPartial( "userDetailsForm", "blog/userDetailsForm.erazor" );
 		}
 	}
 
@@ -41,14 +69,7 @@ class MemberManagementController extends Controller {
 	public function showUser( user:String ) {
 		PartialViewResult.startLoadingAnimations();
 		return blogMemberApi.getMemberByUsername( user ) >> function(member:BlogMember) {
-			return new PartialViewResult({
-				title: member.name,
-				description: 'Viewing permissions for ${member.user}',
-				member: member,
-				permissions: allPermissions,
-				enumName: enumName,
-				enumPath: enumPath,
-			}, "editUser.erazor").setVars( BlogUtil.addPermissionValues(context) );
+			return getEditUserView( member );
 		}
 	}
 
@@ -63,6 +84,43 @@ class MemberManagementController extends Controller {
 			permissions.push( permission );
 		}
 		return blogMemberApi.updatePermissions( user, permissions ) >> function (n:Noise) return new RedirectResult( baseUri+user );
+	}
+
+	@:route(POST,"/$user/details/")
+	public function saveUserDetails( user:String, args:{ name:String, email:String, username:String, password1:String, password2:String } ):Surprise<ActionResult,Error> {
+		PartialViewResult.startLoadingAnimations();
+		var member = new BlogMember().init({
+			email: args.email,
+			name: args.name,
+			user: new User( args.username )
+		});
+		if ( member.validate()==false ) {
+			var result = getEditUserView( member, "Validation Error: "+member.validationErrors.toString() );
+			return Future.sync( Success(result) );
+		}
+		else if ( args.password1!=args.password2 ) {
+			var result = getEditUserView( member, "Passwords did not match" );
+			return Future.sync( Success(result) );
+		}
+		else return blogMemberApi.updateUser( member, user, args.username, args.password1 ) >> function(member:BlogMember):ActionResult {
+			return new RedirectResult( baseUri+args.username );
+		}
+	}
+
+	function getEditUserView( member:BlogMember, ?error:String ):ActionResult {
+		var result = new PartialViewResult({
+			title: member.name,
+			description: 'Editing User ${member.name} (${member.user})',
+			member: member,
+			permissions: allPermissions,
+			enumName: enumName,
+			enumPath: enumPath,
+			error: error,
+			args: { name:member.name, email:member.email, username:member.user.username }
+		}, "editUser.erazor" );
+		result.setVars( BlogUtil.addPermissionValues(context) );
+		result.addPartial( "userDetailsForm", "blog/userDetailsForm.erazor" );
+		return result;
 	}
 
 	static function enumName(e:EnumValue) return Type.enumConstructor(e);
