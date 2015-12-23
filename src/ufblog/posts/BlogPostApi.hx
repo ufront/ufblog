@@ -110,7 +110,7 @@ class BlogPostApi extends UFApi {
 	}
 
 	static function setSerialization( post:BlogPost ):BlogPost {
-		return post.with( tags, author=>[user=>[[],id,username]] );
+		return post.with( author=>[user=>[[],id,username]], tags );
 	}
 }
 class BlogPostApiAsync extends UFAsyncApi<BlogPostApi> {}
