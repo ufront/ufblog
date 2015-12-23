@@ -4,6 +4,7 @@ import ufblog.tags.*;
 import ufblog.members.*;
 import ufront.MVC;
 import ufront.EasyAuth;
+using ufront.db.DBSerializationTools;
 using tink.CoreApi;
 using CleverSort;
 
@@ -109,17 +110,7 @@ class BlogPostApi extends UFApi {
 	}
 
 	static function setSerialization( post:BlogPost ):BlogPost {
-		function includeField( obj:ufront.db.Object, field:String ) {
-			if ( obj.hxSerializationFields.indexOf(field)==-1 )
-				obj.hxSerializationFields.push( field );
-		}
-		if ( post!=null ) {
-			includeField( post, "author" );
-			includeField( post, "tags" );
-			includeField( post.author, "user" );
-			post.author.user.hxSerializationFields = ["id","username"];
-		}
-		return post;
+		return post.with( tags, author=>[user=>[[],id,username]] );
 	}
 }
 class BlogPostApiAsync extends UFAsyncApi<BlogPostApi> {}

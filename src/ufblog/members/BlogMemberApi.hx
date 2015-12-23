@@ -3,6 +3,7 @@ package ufblog.members;
 import ufront.MVC;
 import ufront.EasyAuth;
 import tink.CoreApi;
+using ufront.db.DBSerializationTools;
 using CleverSort;
 
 class BlogMemberApi extends UFApi {
@@ -57,15 +58,7 @@ class BlogMemberApi extends UFApi {
 	}
 
 	static function setSerialization( m:BlogMember ):BlogMember {
-		function includeField( obj:ufront.db.Object, field:String ) {
-			if ( obj.hxSerializationFields.indexOf(field)==-1 )
-				obj.hxSerializationFields.push( field );
-		}
-		if ( m!=null ) {
-			includeField( m, "user" );
-			m.user.hxSerializationFields = ["id","username","allUserPermissions"];
-		}
-		return m;
+		return @:privateAccess m.with( user=>[[],id,username,allUserPermissions] );
 	}
 }
 class BlogMemberApiAsync extends UFAsyncApi<BlogMemberApi> {}
