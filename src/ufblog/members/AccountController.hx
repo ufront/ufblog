@@ -84,7 +84,7 @@ class AccountController extends Controller {
 	@:route(GET,"/edit-profile")
 	public function editProfileForm() {
 		return blogMemberApi.getCurrentMember() >> function(m:BlogMember) {
-			return getEditProfileView({ name:m.name, email:m.email, username:m.user.username });
+			return getEditProfileView( m, { name:m.name, email:m.email, username:m.user.username } );
 		}
 	}
 
@@ -96,21 +96,22 @@ class AccountController extends Controller {
 		});
 		var oldUsername = context.currentUserID;
 		if ( member.validate()==false ) {
-			return getEditProfileView( args, "Validation Error: "+member.validationErrors.toString() ).asGoodSurprise();
+			return getEditProfileView( member, args, "Validation Error: "+member.validationErrors.toString() ).asGoodSurprise();
 		}
 		else if ( args.password1!=args.password2 ) {
-			return getEditProfileView( args, "Passwords did not match" ).asGoodSurprise();
+			return getEditProfileView( member, args, "Passwords did not match" ).asGoodSurprise();
 		}
 		else return blogMemberApi.updateUser( member, oldUsername, args.username, args.password1 ) >> function(member:BlogMember):ActionResult {
-			return getEditProfileView( args, "Profile updated" );
+			return getEditProfileView( member, args, "Profile updated" );
 		}
 	}
 
-	function getEditProfileView( args:{ name:String, email:String, username:String }, ?err:String ):ActionResult {
+	function getEditProfileView( member:BlogMember, args:{ name:String, email:String, username:String }, ?err:String ):ActionResult {
 		var result = new PartialViewResult({
 			title: "Edit Profile",
 			error: err,
-			args: args
+			args: args,
+			member: member
 		}, "editProfile.erazor" );
 		result.setVars( BlogUtil.addPermissionValues(context) );
 		result.addPartial( "userDetailsForm", "blog/userDetailsForm.erazor" );
