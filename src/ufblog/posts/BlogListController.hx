@@ -11,6 +11,8 @@ import tink.CoreApi;
 class BlogListController extends Controller {
 
 	@inject public var blogApi:BlogPostApiAsync;
+	@inject("blogTitle") public var blogTitle:String;
+	@inject("blogDescription") public var blogDescription:String;
 
 	@:route("/")
 	public function index() {
@@ -21,8 +23,8 @@ class BlogListController extends Controller {
 	public function allPosts( page:Int ) {
 		PartialViewResult.startLoadingAnimations();
 		return blogApi.getPostList( getLimit(page) ) >> function(posts:Array<BlogPost>) {
-			var page = (page!=1) ? ' - Page $page' : '';
-			return showPostList( 'Haxe Blog', 'Haxe Blog$page', posts );
+			var page = (page!=1) ? ' Page $page' : '';
+			return showPostList( blogTitle, blogDescription+' '+page, posts );
 		};
 	}
 
@@ -40,7 +42,7 @@ class BlogListController extends Controller {
 			var tag = pair.a;
 			var posts = pair.b;
 			var page = (page!=1) ? ' - Page $page' : '';
-			return showPostList( 'Haxe Blog - ${tag.title}$page', tag.description, posts );
+			return showPostList( '$blogTitle - ${tag.title}$page', tag.description, posts );
 		};
 	}
 
@@ -58,7 +60,7 @@ class BlogListController extends Controller {
 			var member = pair.a;
 			var posts = pair.b;
 			var page = (page!=1) ? ' - Page $page' : '';
-			return showPostList( 'Haxe Blog - ${member.name}$page', member.name, posts );
+			return showPostList( '$blogTitle - ${member.name}$page', member.name, posts );
 		};
 	}
 

@@ -7,13 +7,14 @@ import ufblog.posts.BlogPostApi;
 class PostManagementController extends Controller {
 
 	@inject public var blogApi:BlogPostApiAsync;
+	@inject("blogTitle") public var blogTitle:String;
 
 	@:route(GET,"/")
 	public function managePosts() {
 		PartialViewResult.startLoadingAnimations();
 		return blogApi.getAllPosts() >> function(posts:Array<BlogPost>) {
 			return new PartialViewResult({
-				title: 'Haxe Blog',
+				title: blogTitle,
 				description: 'Manage posts',
 				posts: posts,
 			}, "managePosts.erazor").setVars( BlogUtil.addPermissionValues(context) );
