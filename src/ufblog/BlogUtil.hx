@@ -18,6 +18,7 @@ class BlogUtil {
 		canViewDrafts: context.auth.hasPermission( BlogPermissions.ViewDraftPosts ),
 		canViewUserList: context.auth.hasPermission( BlogPermissions.ViewUserList ),
 		canManageTags: context.auth.hasPermission( BlogPermissions.ViewUserList ),
+		username: context.currentUserID
 	}
 
 	public static function addCommentCountScript( result:ActionResult, context:HttpContext ):ActionResult {

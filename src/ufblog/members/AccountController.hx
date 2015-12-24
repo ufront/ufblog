@@ -112,6 +112,7 @@ class AccountController extends Controller {
 			error: err,
 			args: args
 		}, "editProfile.erazor" );
+		result.setVars( BlogUtil.addPermissionValues(context) );
 		result.addPartial( "userDetailsForm", "blog/userDetailsForm.erazor" );
 		return result;
 	}
