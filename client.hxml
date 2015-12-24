@@ -6,7 +6,7 @@
 -lib detox
 -lib cleversort
 -cp src
--main Client
+-main ufblog.Client
 -debug
 
 # JS Output

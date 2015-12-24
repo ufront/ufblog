@@ -7,7 +7,7 @@
 -lib ImageMagick
 -lib ufront-ufadmin
 -cp src
--main Server
+-main ufblog.Server
 -debug
 
 # Neko Output

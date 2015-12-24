@@ -1,6 +1,6 @@
+package ufblog;
+
 import ufront.MVC;
-import ufblog.BlogRoutes;
-import ufblog.BlogRemotingApiContext;
 import sys.db.*;
 
 class Server {

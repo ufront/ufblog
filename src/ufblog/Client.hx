@@ -1,5 +1,6 @@
+package ufblog;
+
 import ufront.MVC;
-import ufblog.BlogRoutes;
 import ufblog.posts.*;
 
 class Client {
