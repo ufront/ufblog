@@ -123,7 +123,8 @@ class BlogPostController extends Controller {
 		}, "post.erazor" )
 		.setVars( BlogUtil.addPermissionValues(context) )
 		.addPartial( 'postMeta', '/blog/postMeta.erazor' )
-		.addClientAction( LoadCommentsAction, { id:post.id, uri:uri } );
+		.addClientAction( LoadCommentsAction, { id:post.id, uri:uri } )
+		.addClientAction( HighlightSyntaxAction, {} );
 		return BlogUtil.addCommentCountScript( result, context );
 	}
 
