@@ -102,8 +102,12 @@ class BlogPostController extends Controller {
 			// TODO: same problem as in `editPost`, for now we need explicit typing.
 			var postSurprise:Surprise<BlogPost,Error> = blogApi.getPostBySlug( postSlug );
 			return postSurprise >> function (post:BlogPost):DirectFilePathResult {
-				var rawPath = context.contentDirectory+'blog-uploads/${post.id}/${filename}';
-				var resizedPath = attachmentApi.getResizedImage( rawPath, args.w, args.h );
+				var path = 'blog-uploads/${post.id}/${filename}';
+				var absPath = context.contentDirectory+path;
+				if (!sys.FileSystem.exists(absPath)) {
+					attachmentApi.downloadFromS3(path, absPath);
+				}
+				var resizedPath = attachmentApi.getResizedImage( absPath, args.w, args.h );
 				return new DirectFilePathResult( resizedPath );
 			};
 		}

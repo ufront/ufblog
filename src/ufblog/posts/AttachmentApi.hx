@@ -13,16 +13,51 @@ using haxe.io.Path;
 class AttachmentApi extends UFApi {
 	@inject("contentDirectory") public var contentDir:String;
 
+	/**
+		The env var, BLOG_S3BUCKET, is used to define the bucket to be used.
+		If the env var is not defined, no sync will be performed.
+	**/
+	public function uploadToS3(localPath:String, s3Path:String):Void {
+		return switch (Sys.getEnv("BLOG_S3BUCKET")) {
+			case null:
+				//pass
+			case bucket:
+				var localPath = sys.FileSystem.absolutePath(localPath);
+				if (Sys.command("aws", ["s3", "cp", localPath, 's3://${bucket}/${s3Path}']) != 0) {
+					throw 'failed to upload ${localPath} to s3://${bucket}/${s3Path}';
+				}
+		}
+	}
+
+	/**
+		The env var, BLOG_S3BUCKET, is used to define the bucket to be used.
+		If the env var is not defined, no sync will be performed.
+	**/
+	public function downloadFromS3(s3Path:String, localPath:String):Void {
+		return switch (Sys.getEnv("BLOG_S3BUCKET")) {
+			case null:
+				//pass
+			case bucket:
+				var localPath = sys.FileSystem.absolutePath(localPath);
+				if (Sys.command("aws", ["s3", "cp", 's3://${bucket}/${s3Path}', localPath]) != 0) {
+					throw 'failed to download s3://${bucket}/${s3Path} to ${localPath}';
+				}
+		}
+	}
+
 	public function uploadImage( postID:DatabaseID<BlogPost>, upload:UFFileUpload ):Surprise<String,Error> {
 		auth.requirePermission( BlogPermissions.WritePost );
 		var post = BlogPost.manager.get( postID );
 		if ( post==null )
 			throw HttpError.pageNotFound();
-		var dir = contentDir+'blog-uploads/${postID}';
-		if ( FileSystem.exists(dir)==false )
-			FileSystem.createDirectory( dir );
+		var dir = 'blog-uploads/${postID}';
+		var absDir = contentDir + dir;
+		if ( FileSystem.exists(absDir)==false )
+			FileSystem.createDirectory( absDir );
 		var path = dir+"/"+upload.originalFileName;
-		return upload.writeToFile( path ) >> function (n:Noise):String {
+		var absPath = contentDir + path;
+		return upload.writeToFile( absPath ) >> function (n:Noise):String {
+			uploadToS3(absPath, path);
 			return '~/${upload.originalFileName.urlEncode()}';
 		}
 	}
