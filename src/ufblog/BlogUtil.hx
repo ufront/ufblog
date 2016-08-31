@@ -38,7 +38,7 @@ class BlogUtil {
 	public static function gravatar( m:BlogMember, size:Int, cssClass:String ) {
 		if (m!=null) {
 			var hash = Md5.encode( m.email.toLowerCase().trim() );
-			var url = 'http://www.gravatar.com/avatar/$hash?s=$size&d=retro';
+			var url = '//www.gravatar.com/avatar/$hash?s=$size&d=retro';
 			return '<img src="$url" class="$cssClass" alt="Avatar for $m" width="$2size" height="$2size" title="${m.name}" />';
 		}
 		else return "";
